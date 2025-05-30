@@ -8,7 +8,7 @@ import { CreateUrlDto } from "../dtos/create-url.dto";
 
 @ApiTags("Encurtador de URLs")
 @Controller()
-export class UrlShortnerController {
+export class UrlShortenerController {
 	constructor(@Inject("URL_SHORTENER_SERVICE") private urlShortenerService: ClientProxy) {}
 
 	@Post("shorten")
@@ -20,7 +20,7 @@ export class UrlShortnerController {
 
 	@Get(":shortUrl")
 	@ApiOperation({ summary: "Redirecionar para URL original" })
-	async getUrlShortner(@Param("shortUrl") shortUrl: string, @Res() res: Response) {
+	async getUrlShortener(@Param("shortUrl") shortUrl: string, @Res() res: Response) {
 		const redirectUrl = await firstValueFrom(this.urlShortenerService.send({ cmd: "getUrlShortener" }, shortUrl));
 		return res.redirect(redirectUrl);
 	}

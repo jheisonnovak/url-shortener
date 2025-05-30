@@ -2,7 +2,7 @@ import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { ClientsModule, Transport } from "@nestjs/microservices";
 import { AuthLoginController } from "./interfaces/controllers/auth-login.controller";
-import { UrlShortnerController } from "./interfaces/controllers/url-shortener.controller";
+import { UrlShortenerController } from "./interfaces/controllers/url-shortener.controller";
 
 const getRmqOptions = (queue: string) => ({
 	urls: [process.env.RABBITMQ_URL || "amqp://localhost:5672"],
@@ -30,7 +30,7 @@ const getRmqOptions = (queue: string) => ({
 			},
 		]),
 	],
-	controllers: [AuthLoginController, UrlShortnerController],
+	controllers: [AuthLoginController, UrlShortenerController],
 	providers: [],
 })
 export class ApiGatewayModule {}

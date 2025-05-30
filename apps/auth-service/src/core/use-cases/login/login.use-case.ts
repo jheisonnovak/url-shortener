@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 
 @Injectable()
-export class AuthServiceService {
+export class LoginUseCase {
 	login(loginDto: string): string {
 		return loginDto;
 	}
