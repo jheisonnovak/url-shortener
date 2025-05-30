@@ -11,8 +11,8 @@ export class UrlEntity {
 	@Column({ name: "original_url", type: "varchar", nullable: false })
 	originalUrl: string;
 
-	@Column({ name: "short_url", type: "varchar", unique: true, nullable: false })
-	shortUrl: string;
+	@Column({ name: "short_code", type: "varchar", unique: true, nullable: false })
+	shortCode: string;
 
 	@Column({ name: "click_count", type: "int", default: 0, nullable: false })
 	clickCount: number;

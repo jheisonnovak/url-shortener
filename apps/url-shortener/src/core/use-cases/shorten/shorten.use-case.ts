@@ -16,17 +16,17 @@ export class ShortenUseCase {
 	async execute(createUrlDto: CreateUrlDto): Promise<ListUrlDto> {
 		const url = new UrlEntity();
 		url.originalUrl = createUrlDto.originalUrl;
-		url.shortUrl = !createUrlDto.customCode ? await this.createShortCode() : await this.validateShortCodeExists(createUrlDto.customCode);
+		url.shortCode = !createUrlDto.customCode ? await this.createShortCode() : await this.validateShortCodeExists(createUrlDto.customCode);
 
 		const createdUrl = await this.urlRepository.save(url);
-		return new ListUrlDto(createdUrl.id, createdUrl.originalUrl, createdUrl.shortUrl);
+		return new ListUrlDto(createdUrl.id, createdUrl.originalUrl, createdUrl.shortCode);
 	}
 
 	private async createShortCode(): Promise<string> {
 		let code: string;
 		do {
 			code = this.generateShortCode();
-		} while (await this.urlRepository.existsByCode(code));
+		} while (await this.urlRepository.existsByShortCode(code));
 		return code;
 	}
 
@@ -40,7 +40,7 @@ export class ShortenUseCase {
 	}
 
 	private async validateShortCodeExists(code: string): Promise<string> {
-		if (await this.urlRepository.existsByCode(code)) throw new NotFoundException("Código encurtado não disponível");
+		if (await this.urlRepository.existsByShortCode(code)) throw new NotFoundException("Código encurtado não disponível");
 		return code;
 	}
 }

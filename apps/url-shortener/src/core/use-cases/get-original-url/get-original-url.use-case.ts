@@ -10,7 +10,7 @@ export class GetOriginalUrlUseCase {
 	) {}
 
 	async execute(url: string): Promise<string> {
-		const existingShortUrl = await this.urlRepository.findByShortUrl(url);
+		const existingShortUrl = await this.urlRepository.findByShortCode(url);
 		if (!existingShortUrl) throw new NotFoundException("URL não encontrada");
 		this.addClickCount(existingShortUrl);
 		return existingShortUrl.originalUrl;

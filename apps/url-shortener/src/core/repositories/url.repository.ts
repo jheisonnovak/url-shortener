@@ -11,12 +11,12 @@ export class UrlTypeOrmRepository implements IUrlRepository {
 		private readonly urlRepository: Repository<UrlEntity>
 	) {}
 
-	async findByShortUrl(shortUrl: string): Promise<UrlEntity | null> {
-		return this.urlRepository.findOne({ where: { shortUrl, deletedAt: IsNull() } });
+	async findByShortCode(shortCode: string): Promise<UrlEntity | null> {
+		return this.urlRepository.findOne({ where: { shortCode, deletedAt: IsNull() } });
 	}
 
-	async existsByCode(code: string): Promise<boolean> {
-		return await this.urlRepository.exists({ where: { shortUrl: code, deletedAt: IsNull() } });
+	async existsByShortCode(shortCode: string): Promise<boolean> {
+		return await this.urlRepository.exists({ where: { shortCode, deletedAt: IsNull() } });
 	}
 
 	async save(url: UrlEntity): Promise<UrlEntity> {
