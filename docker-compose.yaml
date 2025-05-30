@@ -28,9 +28,10 @@ services:
         environment:
             - POSTGRES_USER=postgres
             - POSTGRES_PASSWORD=postgres
-            - POSTGRES_DB=url_shortener
+            - POSTGRES_DB=postgres
         volumes:
             - postgres_data:/var/lib/postgresql/data
+            - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
         networks:
             - microservices_network
         healthcheck:
