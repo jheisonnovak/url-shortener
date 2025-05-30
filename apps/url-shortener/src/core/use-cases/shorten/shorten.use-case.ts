@@ -18,7 +18,7 @@ export class ShortenUseCase {
 		url.originalUrl = createUrlDto.originalUrl;
 		url.shortUrl = !createUrlDto.customCode ? await this.createShortCode() : await this.validateShortCodeExists(createUrlDto.customCode);
 
-		const createdUrl = await this.urlRepository.create(url);
+		const createdUrl = await this.urlRepository.save(url);
 		return new ListUrlDto(createdUrl.id, createdUrl.originalUrl, createdUrl.shortUrl);
 	}
 
