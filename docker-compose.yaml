@@ -1,0 +1,80 @@
+version: "3.8"
+
+services:
+    rabbitmq:
+        image: rabbitmq:3-management
+        container_name: rabbitmq
+        ports:
+            - "5672:5672"
+            - "15672:15672"
+        environment:
+            - RABBITMQ_DEFAULT_USER=user
+            - RABBITMQ_DEFAULT_PASS=password
+        volumes:
+            - rabbitmq_data:/var/lib/rabbitmq
+        networks:
+            - microservices_network
+        healthcheck:
+            test: ["CMD", "rabbitmqctl", "status"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+    postgres:
+        image: postgres:14
+        container_name: postgres
+        ports:
+            - "5434:5434"
+        environment:
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
+            - POSTGRES_DB=microservices
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+        networks:
+            - microservices_network
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+    redis:
+        image: redis:alpine
+        container_name: redis
+        ports:
+            - "6379:6379"
+        volumes:
+            - redis_data:/data
+        networks:
+            - microservices_network
+        healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+    pgadmin:
+        image: dpage/pgadmin4
+        container_name: pgadmin
+        depends_on:
+            - postgres
+        ports:
+            - "5050:80"
+        environment:
+            - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+            - PGADMIN_DEFAULT_PASSWORD=admin
+        volumes:
+            - pgadmin_data:/var/lib/pgadmin
+        networks:
+            - microservices_network
+
+volumes:
+    postgres_data:
+    rabbitmq_data:
+    redis_data:
+    pgadmin_data:
+
+networks:
+    microservices_network:
+        driver: bridge
