@@ -1,5 +1,6 @@
 import { NestFactory } from "@nestjs/core";
 import { Transport } from "@nestjs/microservices";
+import { AllExceptionsFilter } from "../../../libs/common/src";
 import { UrlShortenerModule } from "./url-shortener.module";
 
 async function bootstrap() {
@@ -13,6 +14,8 @@ async function bootstrap() {
 			},
 		},
 	});
+
+	app.useGlobalFilters(new AllExceptionsFilter());
 	await app.listen();
 }
 bootstrap();
