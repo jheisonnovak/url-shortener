@@ -14,4 +14,12 @@ export class UrlTypeOrmRepository implements IUrlRepository {
 	async findByShortUrl(shortUrl: string): Promise<UrlEntity | null> {
 		return this.urlRepository.findOne({ where: { shortUrl, deletedAt: IsNull() } });
 	}
+
+	async existsByCode(code: string): Promise<boolean> {
+		return await this.urlRepository.exists({ where: { shortUrl: code, deletedAt: IsNull() } });
+	}
+
+	async create(url: UrlEntity): Promise<UrlEntity> {
+		return this.urlRepository.save(url);
+	}
 }
