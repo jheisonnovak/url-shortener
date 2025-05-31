@@ -40,21 +40,6 @@ services:
             timeout: 5s
             retries: 5
 
-    redis:
-        image: redis:alpine
-        container_name: redis
-        ports:
-            - "6379:6379"
-        volumes:
-            - redis_data:/data
-        networks:
-            - microservices_network
-        healthcheck:
-            test: ["CMD", "redis-cli", "ping"]
-            interval: 10s
-            timeout: 5s
-            retries: 5
-
     pgadmin:
         image: dpage/pgadmin4
         container_name: pgadmin
@@ -70,10 +55,86 @@ services:
         networks:
             - microservices_network
 
+    auth-service:
+        build:
+            context: .
+            dockerfile: apps/auth-service/Dockerfile
+        container_name: auth-service
+        env_file:
+            - .env
+        depends_on:
+            - postgres
+            - rabbitmq
+        networks:
+            - microservices_network
+        restart: unless-stopped
+        command: sh -c "
+            until nc -z postgres 5432; do
+            echo 'Waiting for Postgres...';
+            sleep 2;
+            done;
+            until nc -z rabbitmq 5672; do
+            echo 'Waiting for RabbitMQ...';
+            sleep 2;
+            done;
+            node dist/apps/auth-service/main
+            "
+
+    url-shortener:
+        build:
+            context: .
+            dockerfile: apps/url-shortener/Dockerfile
+        container_name: url-shortener
+        env_file:
+            - .env
+        depends_on:
+            - postgres
+            - rabbitmq
+        networks:
+            - microservices_network
+        restart: unless-stopped
+        command: sh -c "
+            until nc -z postgres 5432; do
+            echo 'Waiting for Postgres...';
+            sleep 2;
+            done;
+            until nc -z rabbitmq 5672; do
+            echo 'Waiting for RabbitMQ...';
+            sleep 2;
+            done;
+            node dist/apps/url-shortener/main
+            "
+
+    api-gateway:
+        build:
+            context: .
+            dockerfile: apps/api-gateway/Dockerfile
+        container_name: api-gateway
+        env_file:
+            - .env
+        ports:
+            - "2000:2000"
+        depends_on:
+            - auth-service
+            - url-shortener
+        networks:
+            - microservices_network
+        restart: unless-stopped
+        command: sh -c "
+            until nc -z postgres 5432; do
+            echo 'Waiting for Postgres...';
+            sleep 2;
+            done;
+            until nc -z rabbitmq 5672; do
+            echo 'Waiting for RabbitMQ...';
+            sleep 2;
+            done;
+            node dist/apps/api-gateway/main
+            "
+
 volumes:
     postgres_data:
     rabbitmq_data:
-    redis_data:
     pgadmin_data:
 
 networks:
