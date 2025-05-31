@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { ClientsModule, Transport } from "@nestjs/microservices";
+import { JwtStrategy } from "../../../libs/common/src/jwt.strategy";
 import { AuthLoginController } from "./interfaces/controllers/auth-login.controller";
 import { UrlShortenerController } from "./interfaces/controllers/url-shortener.controller";
 
@@ -31,6 +32,6 @@ const getRmqOptions = (queue: string) => ({
 		]),
 	],
 	controllers: [AuthLoginController, UrlShortenerController],
-	providers: [],
+	providers: [JwtStrategy],
 })
 export class ApiGatewayModule {}

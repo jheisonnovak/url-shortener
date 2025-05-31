@@ -12,7 +12,7 @@ export class CreateUrlDto {
 
 	@ApiPropertyOptional({
 		description: "Código personalizado (opcional)",
-		example: "meulink",
+		example: "meulnk",
 	})
 	@Length(6, 6, { message: "O código personalizado deve ter exatamente 6 caracteres." })
 	@IsOptional()

@@ -1,4 +1,4 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
 export class ListUrlDto {
 	@ApiProperty()
@@ -10,9 +10,13 @@ export class ListUrlDto {
 	@ApiProperty()
 	shortUrl: string;
 
-	constructor(id: string, originalUrl: string, shortUrl: string) {
+	@ApiPropertyOptional()
+	userId?: string;
+
+	constructor(id: string, originalUrl: string, shortUrl: string, userId?: string) {
 		this.id = id;
 		this.originalUrl = originalUrl;
 		this.shortUrl = shortUrl;
+		this.userId = userId;
 	}
 }

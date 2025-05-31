@@ -9,7 +9,8 @@ export class ShortenController {
 	constructor(private readonly shortenUseCase: ShortenUseCase) {}
 
 	@MessagePattern({ cmd: "createUrlShortener" })
-	async execute(createUrlDto: CreateUrlDto): Promise<ListUrlDto> {
-		return this.shortenUseCase.execute(createUrlDto);
+	async execute(data: { createUrlDto: CreateUrlDto; userId: string }): Promise<ListUrlDto> {
+		console.log(data.userId);
+		return this.shortenUseCase.execute(data.createUrlDto, data.userId);
 	}
 }
