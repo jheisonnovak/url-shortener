@@ -12,6 +12,8 @@ import { GetOriginalUrlController } from "./core/use-cases/get-original-url/get-
 import { GetOriginalUrlUseCase } from "./core/use-cases/get-original-url/get-original-url.use-case";
 import { ShortenController } from "./core/use-cases/shorten/shorten.controller";
 import { ShortenUseCase } from "./core/use-cases/shorten/shorten.use-case";
+import { UpdateOriginalUrlController } from "./core/use-cases/update-original-url/update-original-url.controller";
+import { UpdateOriginalUrlUseCase } from "./core/use-cases/update-original-url/update-original-url.use-case";
 
 @Module({
 	imports: [
@@ -24,11 +26,12 @@ import { ShortenUseCase } from "./core/use-cases/shorten/shorten.use-case";
 		}),
 		TypeOrmModule.forFeature([UrlEntity]),
 	],
-	controllers: [GetOriginalUrlController, ShortenController, FindAllUrlsController, DeleteController],
+	controllers: [GetOriginalUrlController, ShortenController, FindAllUrlsController, UpdateOriginalUrlController, DeleteController],
 	providers: [
 		GetOriginalUrlUseCase,
 		ShortenUseCase,
 		FindAllUrlsUseCase,
+		UpdateOriginalUrlUseCase,
 		DeleteUseCase,
 		UrlTypeOrmRepository,
 		{

@@ -1,6 +1,6 @@
-import { Body, Controller, Delete, Get, Inject, Param, Post, Query, Req, Res, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Inject, Param, Patch, Post, Query, Req, Res, UseGuards } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags, OmitType } from "@nestjs/swagger";
 import { Request, Response } from "express";
 import { firstValueFrom } from "rxjs";
 import { CurrentUser, JwtAuthGuard, JwtPayload, ListDetailedUrlDto, OptionalAuthGuard, ResponseDto } from "../../../../../libs/common/src";
@@ -8,6 +8,7 @@ import { ListUrlDto } from "../../../../../libs/common/src/dtos/list-url.dto";
 import { PaginatedResponse } from "../../decorators/paginated-response.decorator";
 import { CreateUrlDto } from "../dtos/create-url.dto";
 import { PaginationDto } from "../dtos/pagination.dto";
+import { UpdateUrlDto } from "../dtos/update-url.dto";
 
 @ApiTags("Encurtador de URLs")
 @Controller()
@@ -49,12 +50,31 @@ export class UrlShortenerController {
 		);
 	}
 
+	@Patch("shortener/:shortCode")
+	@UseGuards(JwtAuthGuard)
+	@ApiBearerAuth()
+	@ApiOperation({ summary: "Atualizar URL de origem" })
+	@ApiResponse({ type: ResponseDto })
+	async updateShortenedUrl(
+		@Param("shortCode") shortCode: string,
+		@Body() updateUrlDto: UpdateUrlDto,
+		@CurrentUser() user: JwtPayload,
+		@Req() req: Request
+	) {
+		return await firstValueFrom(
+			this.urlShortenerService.send<ResponseDto>(
+				{ cmd: "updateShortenedUrl" },
+				{ shortCode, userId: user.sub, updateUrl: updateUrlDto.originalUrl, protocol: req.protocol, host: req.get("host") }
+			)
+		);
+	}
+
 	@Delete("shortener/:shortCode")
 	@UseGuards(JwtAuthGuard)
 	@ApiBearerAuth()
 	@ApiOperation({ summary: "Excluir URL encurtada" })
-	@ApiResponse({ type: ResponseDto })
+	@ApiResponse({ type: OmitType(ListUrlDto, ["userId"]) })
 	async deleteShortenedUrl(@Param("shortCode") shortCode: string, @CurrentUser() user: JwtPayload) {
-		return await firstValueFrom(this.urlShortenerService.send<ResponseDto>({ cmd: "deleteShortenedUrl" }, { shortCode, userId: user.sub }));
+		return await firstValueFrom(this.urlShortenerService.send<ListUrlDto>({ cmd: "deleteShortenedUrl" }, { shortCode, userId: user.sub }));
 	}
 }
