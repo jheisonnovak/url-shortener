@@ -1,9 +1,9 @@
-import { Body, Controller, Get, Inject, Param, Post, Query, Req, Res, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Inject, Param, Post, Query, Req, Res, UseGuards } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Request, Response } from "express";
 import { firstValueFrom } from "rxjs";
-import { CurrentUser, JwtAuthGuard, JwtPayload, ListDetailedUrlDto, OptionalAuthGuard } from "../../../../../libs/common/src";
+import { CurrentUser, JwtAuthGuard, JwtPayload, ListDetailedUrlDto, OptionalAuthGuard, ResponseDto } from "../../../../../libs/common/src";
 import { ListUrlDto } from "../../../../../libs/common/src/dtos/list-url.dto";
 import { PaginatedResponse } from "../../decorators/paginated-response.decorator";
 import { CreateUrlDto } from "../dtos/create-url.dto";
@@ -42,10 +42,19 @@ export class UrlShortenerController {
 	@PaginatedResponse(ListDetailedUrlDto)
 	async listShortenedUrls(@CurrentUser() user: JwtPayload, @Req() req: Request, @Query() pagination?: PaginationDto) {
 		return await firstValueFrom(
-			this.urlShortenerService.send(
+			this.urlShortenerService.send<ListDetailedUrlDto[]>(
 				{ cmd: "listShortenedUrls" },
-				{ userId: user?.sub, pagination, protocol: req.protocol, host: req.get("host") }
+				{ userId: user.sub, pagination, protocol: req.protocol, host: req.get("host") }
 			)
 		);
+	}
+
+	@Delete("shortener/:shortCode")
+	@UseGuards(JwtAuthGuard)
+	@ApiBearerAuth()
+	@ApiOperation({ summary: "Excluir URL encurtada" })
+	@ApiResponse({ type: ResponseDto })
+	async deleteShortenedUrl(@Param("shortCode") shortCode: string, @CurrentUser() user: JwtPayload) {
+		return await firstValueFrom(this.urlShortenerService.send<ResponseDto>({ cmd: "deleteShortenedUrl" }, { shortCode, userId: user.sub }));
 	}
 }

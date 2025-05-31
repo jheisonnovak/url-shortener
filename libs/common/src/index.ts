@@ -5,6 +5,7 @@ export * from "./dtos/list-detailed-url.dto";
 export * from "./dtos/list-url.dto";
 export * from "./dtos/list-user.dto";
 export * from "./dtos/paginated-response.dto";
+export * from "./dtos/response.dto";
 export * from "./dtos/token.dto";
 export * from "./filters/all-exception.filter";
 export * from "./filters/global-exception.filter";

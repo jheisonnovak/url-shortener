@@ -36,4 +36,8 @@ export class UrlTypeOrmRepository implements IUrlRepository {
 	async save(url: UrlEntity): Promise<UrlEntity> {
 		return this.urlRepository.save(url);
 	}
+
+	async delete(id: string): Promise<void> {
+		await this.urlRepository.delete(id);
+	}
 }
