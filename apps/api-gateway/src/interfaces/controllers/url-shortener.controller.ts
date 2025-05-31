@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Inject, Param, Post, Res, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Inject, Param, Post, Req, Res, UseGuards } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { Response } from "express";
+import { Request, Response } from "express";
 import { firstValueFrom } from "rxjs";
 import { CurrentUser, JwtPayload, OptionalAuthGuard } from "../../../../../libs/common/src";
 import { ListUrlDto } from "../../../../../libs/common/src/dtos/list-url.dto";
@@ -16,8 +16,13 @@ export class UrlShortenerController {
 	@ApiOperation({ summary: "Encurtar URL" })
 	@UseGuards(OptionalAuthGuard)
 	@ApiResponse({ status: 201, type: ListUrlDto })
-	async shortenUrl(@Body() createUrlDto: CreateUrlDto, @CurrentUser() user: JwtPayload) {
-		return await firstValueFrom(this.urlShortenerService.send<CreateUrlDto>({ cmd: "createUrlShortener" }, { createUrlDto, userId: user?.sub }));
+	async shortenUrl(@Body() createUrlDto: CreateUrlDto, @Req() req: Request, @CurrentUser() user: JwtPayload) {
+		return await firstValueFrom(
+			this.urlShortenerService.send<CreateUrlDto>(
+				{ cmd: "createUrlShortener" },
+				{ createUrlDto, userId: user?.sub, protocol: req.protocol, host: req.get("host") }
+			)
+		);
 	}
 
 	@Get(":shortCode")

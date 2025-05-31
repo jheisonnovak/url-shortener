@@ -13,14 +13,15 @@ export class ShortenUseCase {
 	private readonly characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 	private readonly codeLength = 6;
 
-	async execute(createUrlDto: CreateUrlDto, userId: string): Promise<ListUrlDto> {
+	async execute(createUrlDto: CreateUrlDto, userId: string, protocol: string, host: string): Promise<ListUrlDto> {
 		const url = new UrlEntity();
 		url.originalUrl = createUrlDto.originalUrl;
 		url.shortCode = !createUrlDto.customCode ? await this.createShortCode() : await this.validateShortCodeExists(createUrlDto.customCode);
 		url.userId = userId;
 
 		const createdUrl = await this.urlRepository.save(url);
-		return new ListUrlDto(createdUrl.id, createdUrl.originalUrl, createdUrl.shortCode, userId);
+		const shortUrl = `${protocol}://${host}/${createdUrl.shortCode}`;
+		return new ListUrlDto(createdUrl.id, createdUrl.originalUrl, shortUrl, userId);
 	}
 
 	private async createShortCode(): Promise<string> {
