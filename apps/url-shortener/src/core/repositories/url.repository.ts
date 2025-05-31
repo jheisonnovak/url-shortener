@@ -11,6 +11,20 @@ export class UrlTypeOrmRepository implements IUrlRepository {
 		private readonly urlRepository: Repository<UrlEntity>
 	) {}
 
+	async findAll(userId: string, page: number, limit: number, search?: string): Promise<[UrlEntity[], number]> {
+		const query = this.urlRepository
+			.createQueryBuilder("url")
+			.select(["url.id", "url.shortCode", "url.originalUrl", "url.clickCount", "url.createdAt", "url.updatedAt"])
+			.where("url.userId = :userId", { userId })
+			.andWhere("url.deletedAt IS NULL")
+			.take(limit)
+			.skip((page - 1) * limit)
+			.orderBy("url.createdAt", "DESC");
+		if (search) query.andWhere("url.originalUrl ILIKE :search", { search: `%${search}%` });
+
+		return query.getManyAndCount();
+	}
+
 	async findByShortCode(shortCode: string): Promise<UrlEntity | null> {
 		return this.urlRepository.findOne({ where: { shortCode, deletedAt: IsNull() } });
 	}
