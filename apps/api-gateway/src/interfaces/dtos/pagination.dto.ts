@@ -29,7 +29,6 @@ export class PaginationDto {
 
 	@ApiPropertyOptional({
 		description: "Termo para busca nos resultados",
-		example: "termo de busca",
 	})
 	@IsOptional()
 	@IsString({ message: "O termo de busca deve ser uma string" })

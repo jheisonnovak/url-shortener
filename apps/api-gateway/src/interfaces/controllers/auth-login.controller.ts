@@ -22,6 +22,7 @@ export class AuthLoginController {
 	@Post("register")
 	@ApiOperation({ summary: "Registrar novo usuário" })
 	@ApiResponse({ status: 201, description: "Usuário registrado com sucesso", type: ListUserDto })
+	@ApiResponse({ status: 400, description: "Username ou email já estão em uso" })
 	async register(@Body() registerDto: RegisterDto): Promise<ListUserDto> {
 		return firstValueFrom(this.authClient.send<ListUserDto>({ cmd: "register" }, registerDto));
 	}
