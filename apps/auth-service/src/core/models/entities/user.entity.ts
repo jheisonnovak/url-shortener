@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({ name: "users" })
 export class UserEntity {
@@ -14,8 +14,8 @@ export class UserEntity {
 	@CreateDateColumn({ name: "created_at" })
 	createdAt: Date;
 
-	@DeleteDateColumn({ name: "deleted_at" })
-	deletedAt: Date;
+	@Column({ name: "is_active", default: true })
+	isActive: boolean;
 
 	constructor(user: Partial<UserEntity>) {
 		Object.assign(this, user);

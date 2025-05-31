@@ -1,13 +1,15 @@
-import { Body, Controller } from "@nestjs/common";
+import { Controller } from "@nestjs/common";
 import { MessagePattern } from "@nestjs/microservices";
+import { TokenDto } from "../../../../../../libs/common/src";
+import { LoginDto } from "../../models/dtos/login.dto";
 import { LoginUseCase } from "./login.use-case";
 
 @Controller("auth")
-export class AuthServiceController {
+export class LoginController {
 	constructor(private readonly loginUseCase: LoginUseCase) {}
 
 	@MessagePattern({ cmd: "login" })
-	async login(@Body() loginDto: string) {
-		return this.loginUseCase.login(loginDto);
+	async execute(loginDto: LoginDto): Promise<TokenDto> {
+		return this.loginUseCase.execute(loginDto);
 	}
 }

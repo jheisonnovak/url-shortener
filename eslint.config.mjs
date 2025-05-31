@@ -32,6 +32,6 @@ export default tseslint.config(
 			"@typescript-eslint/no-unused-expressions": "off",
 		},
 	},
-	tseslint.configs.recommended,
+	// tseslint.configs.recommended,
 	prettierConfig
 );

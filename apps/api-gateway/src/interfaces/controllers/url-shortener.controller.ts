@@ -18,10 +18,10 @@ export class UrlShortenerController {
 		return await firstValueFrom(this.urlShortenerService.send<CreateUrlDto>({ cmd: "createUrlShortener" }, createUrlDto));
 	}
 
-	@Get(":shortUrl")
+	@Get(":shortCode")
 	@ApiOperation({ summary: "Redirecionar para URL original" })
-	async getUrlShortener(@Param("shortUrl") shortUrl: string, @Res() res: Response) {
-		const redirectUrl = await firstValueFrom(this.urlShortenerService.send({ cmd: "getUrlShortener" }, shortUrl));
+	async getUrlShortener(@Param("shortCode") shortCode: string, @Res() res: Response) {
+		const redirectUrl = await firstValueFrom(this.urlShortenerService.send({ cmd: "getUrlShortener" }, shortCode));
 		return res.redirect(redirectUrl);
 	}
 }

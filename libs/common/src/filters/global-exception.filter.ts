@@ -13,7 +13,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 		const timestamp = new Date().toISOString();
 		const requestPath = request.url;
 		const method = request.method;
-		const ip = request.ip;
 
 		if (exception.error && exception.error.statusCode) {
 			const errorData = exception.error;
