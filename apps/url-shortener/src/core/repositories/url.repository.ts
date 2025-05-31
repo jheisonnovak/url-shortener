@@ -29,6 +29,10 @@ export class UrlTypeOrmRepository implements IUrlRepository {
 		return this.urlRepository.findOne({ where: { shortCode, deletedAt: IsNull() } });
 	}
 
+	async findByShortCodeAndUserId(shortCode: string, userId: string): Promise<UrlEntity | null> {
+		return this.urlRepository.findOne({ where: { shortCode, userId, deletedAt: IsNull() } });
+	}
+
 	async existsByShortCode(shortCode: string): Promise<boolean> {
 		return await this.urlRepository.exists({ where: { shortCode, deletedAt: IsNull() } });
 	}
