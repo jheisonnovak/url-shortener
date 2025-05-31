@@ -14,4 +14,8 @@ export class UserTypeOrmRepository implements IUserRepository {
 			where: { email, isActive: true },
 		});
 	}
+
+	async save(user: UserEntity): Promise<UserEntity> {
+		return this.userRepository.save(user);
+	}
 }

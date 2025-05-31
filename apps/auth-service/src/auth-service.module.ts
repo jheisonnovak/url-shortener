@@ -7,6 +7,8 @@ import { UserEntity } from "./core/models/entities/user.entity";
 import { UserTypeOrmRepository } from "./core/repositories/user.repository";
 import { LoginController } from "./core/use-cases/login/login.controller";
 import { LoginUseCase } from "./core/use-cases/login/login.use-case";
+import { RegisterController } from "./core/use-cases/register/register.controller";
+import { RegisterUseCase } from "./core/use-cases/register/register.use-case";
 
 @Module({
 	imports: [
@@ -20,9 +22,10 @@ import { LoginUseCase } from "./core/use-cases/login/login.use-case";
 		TypeOrmModule.forFeature([UserEntity]),
 		JwtModule.register({ secret: process.env.JWT_SECRET }),
 	],
-	controllers: [LoginController],
+	controllers: [LoginController, RegisterController],
 	providers: [
 		LoginUseCase,
+		RegisterUseCase,
 		UserTypeOrmRepository,
 		{
 			provide: "IUserRepository",

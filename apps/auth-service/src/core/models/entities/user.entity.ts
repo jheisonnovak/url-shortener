@@ -5,6 +5,9 @@ export class UserEntity {
 	@PrimaryGeneratedColumn("uuid")
 	id: string;
 
+	@Column({ name: "username", unique: true, nullable: false })
+	username: string;
+
 	@Column({ name: "email", unique: true, nullable: false })
 	email: string;
 
@@ -17,7 +20,7 @@ export class UserEntity {
 	@Column({ name: "is_active", default: true })
 	isActive: boolean;
 
-	constructor(user: Partial<UserEntity>) {
+	constructor(user?: Partial<UserEntity>) {
 		Object.assign(this, user);
 	}
 }
