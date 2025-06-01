@@ -1,5 +1,3 @@
-export * from "./common.module";
-export * from "./common.service";
 export * from "./current-user.decorator";
 export * from "./dtos/list-detailed-url.dto";
 export * from "./dtos/list-url.dto";
