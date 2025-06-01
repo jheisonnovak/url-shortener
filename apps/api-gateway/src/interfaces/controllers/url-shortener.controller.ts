@@ -16,7 +16,7 @@ import { UpdateUrlDto } from "../dtos/update-url.dto";
 export class UrlShortenerController {
 	constructor(@Inject("URL_SHORTENER_SERVICE") private urlShortenerService: ClientProxy) {}
 
-	@Post("shorten")
+	@Post("shortener")
 	@ApiOperation({
 		summary: "Encurtar URL (sem e com autenticação)",
 		description: "Cria um código encurtado para a URL fornecida. Caso seja criado como usuário autenticado, o código será associado à sua conta.",
@@ -34,6 +34,21 @@ export class UrlShortenerController {
 		);
 	}
 
+	@Get("shortener")
+	@UseGuards(JwtAuthGuard)
+	@ApiBearerAuth()
+	@ApiOperation({ summary: "Listar URLs encurtadas pelo usuário" })
+	@PaginatedResponse(ListDetailedUrlDto)
+	@ApiResponse({ status: 401, description: "Unauthorized" })
+	async listShortenedUrls(@CurrentUser() user: JwtPayload, @Req() req: Request, @Query() pagination?: PaginationDto) {
+		return await firstValueFrom(
+			this.urlShortenerService.send<ListDetailedUrlDto[]>(
+				{ cmd: "listShortenedUrls" },
+				{ userId: user.sub, pagination, protocol: req.protocol, host: req.get("host") }
+			)
+		);
+	}
+
 	@Get(":shortCode")
 	@ApiParam({ name: "shortCode", description: "Código da URL encurtada", example: "abc123" })
 	@ApiOperation({
@@ -47,21 +62,6 @@ export class UrlShortenerController {
 		} catch {
 			return res.status(404).sendFile("not-found-page.html", { root: join(process.cwd(), "public") });
 		}
-	}
-
-	@Get("shortener/list")
-	@UseGuards(JwtAuthGuard)
-	@ApiBearerAuth()
-	@ApiOperation({ summary: "Listar URLs encurtadas pelo usuário" })
-	@PaginatedResponse(ListDetailedUrlDto)
-	@ApiResponse({ status: 401, description: "Unauthorized" })
-	async listShortenedUrls(@CurrentUser() user: JwtPayload, @Req() req: Request, @Query() pagination?: PaginationDto) {
-		return await firstValueFrom(
-			this.urlShortenerService.send<ListDetailedUrlDto[]>(
-				{ cmd: "listShortenedUrls" },
-				{ userId: user.sub, pagination, protocol: req.protocol, host: req.get("host") }
-			)
-		);
 	}
 
 	@Patch("shortener/:shortCode")

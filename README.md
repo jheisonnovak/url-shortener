@@ -140,9 +140,9 @@ A documentação completa da API está disponível via Swagger UI:
 
 #### URLs
 
-- `POST /shorten` - Encurtar URL
+- `POST /shortener` - Encurtar URL
 - `GET /:shortCode` - Redirecionar para URL original
-- `GET /shortener/list` - Listar URLs do usuário (autenticado)
+- `GET /shortener` - Listar URLs do usuário (autenticado)
 - `PATCH /shortener/:shortCode` - Atualizar URL (autenticado)
 - `DELETE /shortener/:shortCode` - Excluir URL (autenticado)
 
