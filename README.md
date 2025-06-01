@@ -101,6 +101,7 @@ DB_NAME_AUTH=auth_service
 
 # JWT
 JWT_SECRET=sua_chave_secreta_super_segura_aqui
+JWT_EXPIRES_IN=15m
 ```
 
 ### Credenciais Padrão
@@ -144,6 +145,26 @@ A documentação completa da API está disponível via Swagger UI:
 - `GET /shortener/list` - Listar URLs do usuário (autenticado)
 - `PATCH /shortener/:shortCode` - Atualizar URL (autenticado)
 - `DELETE /shortener/:shortCode` - Excluir URL (autenticado)
+
+## 📈 Escalabilidade e Pontos de Melhoria
+
+### 🚀 Preparação para Escalabilidade Horizontal
+
+Para suportar crescimento e alta demanda, o sistema pode ser expandido com as seguintes melhorias:
+
+1. **Múltiplas Instâncias de Microserviços**
+
+2. **Cache Distribuído**
+
+3. **Monitoramento e Observabilidade**
+
+### 🎯 Principais Desafios de Escalabilidade
+
+1. **Geração de Short Codes Únicos:** garantir unicidade em múltiplas instâncias
+
+2. **Consistência de Dados:** manter consistência entre múltiplas instâncias e databases
+
+3. **Rate Limiting Distribuído:** controlar limite de requisições por usuário/IP globalmente
 
 ## 👥 Autor
 
