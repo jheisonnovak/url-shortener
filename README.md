@@ -90,18 +90,25 @@ PORT=2000
 
 # RabbitMQ
 RABBITMQ_URL=amqp://user:password@rabbitmq:5672
+RABBITMQ_USER=user
+RABBITMQ_PASSWORD=password
 
 # Banco de Dados
 DB_HOST=postgres
 DB_PORT=5432
 DB_USERNAME=postgres
 DB_PASSWORD=postgres
+DB_NAME=postgres
 DB_NAME_SHORTENER=url_shortener
 DB_NAME_AUTH=auth_service
 
 # JWT
 JWT_SECRET=sua_chave_secreta_super_segura_aqui
 JWT_EXPIRES_IN=15m
+
+# PgAdmin
+PGADMIN_EMAIL=admin@admin.com
+PGADMIN_PASSWORD=admin
 ```
 
 ### Credenciais Padrão
