@@ -25,7 +25,7 @@ export class LoginUseCase {
 	async login(user: UserEntity) {
 		const payload = { sub: user.id, email: user.email };
 		const access_token = await this.jwtService.signAsync(payload, {
-			expiresIn: "15m",
+			expiresIn: process.env.JWT_EXPIRES_IN || "15m",
 		});
 		return new TokenDto(access_token);
 	}

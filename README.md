@@ -2,29 +2,6 @@
 
 Api de encurtamento de URLs desenvolvido com **NestJS**.
 
-## 🛠️ Tecnologias Utilizadas
-
-### Backend
-
-- **[NestJS](https://nestjs.com/)** - Framework Node.js progressivo
-- **[TypeScript](https://www.typescriptlang.org/)** - Linguagem de programação
-- **[TypeORM](https://typeorm.io/)** - ORM para TypeScript/JavaScript
-- **[PostgreSQL](https://www.postgresql.org/)** - Banco de dados relacional
-- **[RabbitMQ](https://www.rabbitmq.com/)** - Message broker para comunicação entre microserviços
-- **[JWT](https://jwt.io/)** - Autenticação baseada em tokens
-- **[bcrypt](https://www.npmjs.com/package/bcrypt)** - Hash de senhas
-- **[class-validator](https://github.com/typestack/class-validator)** - Validação de dados
-- **[Swagger/OpenAPI](https://swagger.io/)** - Documentação da API
-
-### DevOps & Ferramentas
-
-- **[Docker](https://www.docker.com/)** - Containerização
-- **[Docker Compose](https://docs.docker.com/compose/)** - Orquestração de containers
-- **[pgAdmin](https://www.pgadmin.org/)** - Interface de administração do PostgreSQL
-- **[ESLint](https://eslint.org/)** - Linting de código
-- **[Prettier](https://prettier.io/)** - Formatação de código
-- **[Jest](https://jestjs.io/)** - Framework de testes
-
 ## 📋 Pré-requisitos
 
 Antes de executar o projeto, certifique-se de ter instalado:
