@@ -9,6 +9,6 @@ RUN npm ci --only=production
 
 COPY . .
 
-RUN npm run build auth-service
+RUN tsc -p apps/auth-service/tsconfig.app.json
 
 CMD ["node", "dist/apps/auth-service/main"]

@@ -9,6 +9,6 @@ RUN npm ci --only=production
 
 COPY . .
 
-RUN npm run build url-shortener
+RUN tsc -p apps/url-shortener/tsconfig.app.json
 
 CMD ["node", "dist/apps/url-shortener/main"]

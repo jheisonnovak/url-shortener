@@ -9,7 +9,7 @@ RUN npm ci --only=production
 
 COPY . .
 
-RUN npm run build api-gateway
+RUN tsc -p apps/api-gateway/tsconfig.app.json
 
 EXPOSE 3000
 
