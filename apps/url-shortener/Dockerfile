@@ -5,10 +5,11 @@ WORKDIR /app
 COPY package*.json ./
 COPY tsconfig*.json ./
 
-RUN npm ci
+RUN npm i
+RUN npm i -g @nestjs/cli
 
 COPY . .
 
-RUN tsc -p apps/url-shortener/tsconfig.app.json
+RUN nest build url-shortener
 
 CMD ["node", "dist/apps/url-shortener/main"]

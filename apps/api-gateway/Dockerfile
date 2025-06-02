@@ -5,11 +5,12 @@ WORKDIR /app
 COPY package*.json ./
 COPY tsconfig*.json ./
 
-RUN npm ci
+RUN npm i
+RUN npm i -g @nestjs/cli
 
 COPY . .
 
-RUN tsc -p apps/api-gateway/tsconfig.app.json
+RUN nest build api-gateway
 
 EXPOSE 3000
 
