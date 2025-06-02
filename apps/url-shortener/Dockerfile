@@ -5,7 +5,7 @@ WORKDIR /app
 COPY package*.json ./
 COPY tsconfig*.json ./
 
-RUN npm i
+RUN npm i --quiet --no-optional --no-fund --loglevel=error
 RUN npm i -g @nestjs/cli
 
 COPY . .
