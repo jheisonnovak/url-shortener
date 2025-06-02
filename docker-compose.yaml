@@ -8,8 +8,8 @@ services:
             - "5672:5672"
             - "15672:15672"
         environment:
-            - RABBITMQ_DEFAULT_USER={RABBITMQ_USER}
-            - RABBITMQ_DEFAULT_PASS={RABBITMQ_PASSWORD}
+            - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+            - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
         volumes:
             - rabbitmq_data:/var/lib/rabbitmq
         networks:
@@ -26,9 +26,9 @@ services:
         ports:
             - "5434:5432"
         environment:
-            - POSTGRES_USER={DB_USERNAME}
-            - POSTGRES_PASSWORD={DB_PASSWORD}
-            - POSTGRES_DB={DB_NAME}
+            - POSTGRES_USER=${DB_USERNAME}
+            - POSTGRES_PASSWORD=${DB_PASSWORD}
+            - POSTGRES_DB=${DB_NAME}
         volumes:
             - postgres_data:/var/lib/postgresql/data
             - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
@@ -48,8 +48,8 @@ services:
         ports:
             - "5050:80"
         environment:
-            - PGADMIN_DEFAULT_EMAIL={PGADMIN_EMAIL}
-            - PGADMIN_DEFAULT_PASSWORD={PGADMIN_PASSWORD}
+            - PGADMIN_DEFAULT_EMAIL=${PGADMIN_EMAIL}
+            - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD}
         volumes:
             - pgadmin_data:/var/lib/pgadmin
         networks:
