@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { RedisService } from "../../../libs/common/src";
 import { DatabaseConfigService } from "./config/database.config.service";
 import { UrlEntity } from "./core/models/entities/url.entity";
 import { UrlTypeOrmRepository } from "./core/repositories/url.repository";
@@ -28,6 +29,7 @@ import { UpdateOriginalUrlUseCase } from "./core/use-cases/update-original-url/u
 	],
 	controllers: [GetOriginalUrlController, ShortenController, FindAllUrlsController, UpdateOriginalUrlController, DeleteController],
 	providers: [
+		RedisService,
 		GetOriginalUrlUseCase,
 		ShortenUseCase,
 		FindAllUrlsUseCase,

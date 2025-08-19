@@ -21,7 +21,7 @@ services:
             retries: 5
 
     postgres:
-        image: postgres:14
+        image: postgres:16
         container_name: postgres
         ports:
             - "5434:5432"
@@ -52,6 +52,34 @@ services:
             - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD}
         volumes:
             - pgadmin_data:/var/lib/pgadmin
+        networks:
+            - microservices_network
+
+    pgbouncer:
+        image: edoburu/pgbouncer
+        container_name: pgbouncer
+        ports:
+            - "6432:6432"
+        environment:
+            DB_USER: ${DB_USERNAME}
+            DB_PASSWORD: ${DB_PASSWORD}
+            DB_HOST: postgres
+            DB_PORT: 5432
+            DB_NAME_AUTH: ${DB_NAME_AUTH}
+            DB_NAME_SHORTENER: ${DB_NAME_SHORTENER}
+        volumes:
+            - ./pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini
+            - ./userlist.txt:/etc/pgbouncer/userlist.txt
+        depends_on:
+            - postgres
+        networks:
+            - microservices_network
+
+    redis:
+        image: redis:7
+        container_name: redis
+        ports:
+            - "6379:6379"
         networks:
             - microservices_network
 
@@ -90,6 +118,7 @@ services:
         depends_on:
             - postgres
             - rabbitmq
+            - redis
         networks:
             - microservices_network
         restart: unless-stopped

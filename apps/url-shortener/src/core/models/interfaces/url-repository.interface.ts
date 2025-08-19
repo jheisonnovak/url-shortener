@@ -6,5 +6,6 @@ export interface IUrlRepository {
 	findByShortCodeAndUserId(shortCode: string, userId: string): Promise<UrlEntity | null>;
 	existsByShortCode(code: string): Promise<boolean>;
 	save(url: UrlEntity): Promise<UrlEntity>;
+	updateClickCount(id: string): Promise<void>;
 	delete(id: string): Promise<void>;
 }

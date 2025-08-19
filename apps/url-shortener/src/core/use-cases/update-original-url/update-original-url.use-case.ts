@@ -1,12 +1,13 @@
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { ListUrlDto } from "../../../../../../libs/common/src";
+import { ListUrlDto, RedisService } from "../../../../../../libs/common/src";
 import { IUrlRepository } from "../../models/interfaces/url-repository.interface";
 
 @Injectable()
 export class UpdateOriginalUrlUseCase {
 	constructor(
 		@Inject("IUrlRepository")
-		private readonly urlRepository: IUrlRepository
+		private readonly urlRepository: IUrlRepository,
+		private readonly cacheService: RedisService
 	) {}
 
 	async execute(shortCode: string, userId: string, updateUrl: string, protocol: string, host: string): Promise<ListUrlDto> {
@@ -15,6 +16,7 @@ export class UpdateOriginalUrlUseCase {
 
 		url.originalUrl = updateUrl;
 		const newUrl = await this.urlRepository.save(url);
+		await this.cacheService.del(`link:${shortCode}`);
 		const shortUrl = `${protocol}://${host}/${newUrl.shortCode}`;
 		return new ListUrlDto(newUrl.id, newUrl.originalUrl, shortUrl);
 	}

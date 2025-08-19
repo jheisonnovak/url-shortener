@@ -16,7 +16,7 @@ async function bootstrap() {
 		.build();
 
 	const document = SwaggerModule.createDocument(app, config, { autoTagControllers: false });
-	SwaggerModule.setup("api/docs", app, document);
+	SwaggerModule.setup("api/docs", app, document, { customSiteTitle: "API Gateway - URL Shortener" });
 
 	app.useGlobalFilters(new GlobalExceptionFilter());
 	app.useGlobalPipes(new ValidationPipe({ transform: true }));

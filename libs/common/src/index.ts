@@ -1,3 +1,4 @@
+export * from "./cache/redis.service";
 export * from "./current-user.decorator";
 export * from "./dtos/list-detailed-url.dto";
 export * from "./dtos/list-url.dto";

@@ -55,6 +55,7 @@ export class UrlShortenerController {
 		summary: "Redirecionar para URL original",
 		description: "Utilize em um navegador para acessar a URL original. Ex: http://<host>/abc123",
 	})
+	@ApiResponse({ status: 302 })
 	async getUrlShortener(@Param("shortCode") shortCode: string, @Res() res: Response) {
 		try {
 			const redirectUrl = await firstValueFrom(this.urlShortenerService.send({ cmd: "getUrlShortener" }, shortCode));
