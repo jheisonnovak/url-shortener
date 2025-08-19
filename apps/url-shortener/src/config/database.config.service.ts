@@ -10,13 +10,35 @@ export class DatabaseConfigService implements TypeOrmOptionsFactory {
 	createTypeOrmOptions(): TypeOrmModuleOptions {
 		return {
 			type: "postgres",
-			host: this.configService.get<string>("DB_HOST"),
-			port: this.configService.get<number>("DB_PORT"),
-			username: this.configService.get<string>("DB_USERNAME"),
-			password: this.configService.get<string>("DB_PASSWORD"),
-			database: this.configService.get<string>("DB_NAME_SHORTENER"),
+			replication: {
+				master: {
+					host: this.configService.get<string>("DB_SHORTENER_MASTER_HOST"),
+					port: this.configService.get<number>("DB_SHORTENER_MASTER_PORT"),
+					username: this.configService.get<string>("DB_USERNAME"),
+					password: this.configService.get<string>("DB_PASSWORD"),
+					database: this.configService.get<string>("DB_NAME_SHORTENER"),
+				},
+				slaves: [
+					{
+						host: this.configService.get<string>("DB_SHORTENER_SLAVE1_HOST"),
+						port: this.configService.get<number>("DB_SHORTENER_SLAVE1_PORT"),
+						username: this.configService.get<string>("DB_USERNAME"),
+						password: this.configService.get<string>("DB_PASSWORD"),
+						database: this.configService.get<string>("DB_NAME_SHORTENER"),
+					},
+					{
+						host: this.configService.get<string>("DB_SHORTENER_SLAVE2_HOST"),
+						port: this.configService.get<number>("DB_SHORTENER_SLAVE2_PORT"),
+						username: this.configService.get<string>("DB_USERNAME"),
+						password: this.configService.get<string>("DB_PASSWORD"),
+						database: this.configService.get<string>("DB_NAME_SHORTENER"),
+					},
+				],
+			},
 			entities: [UrlEntity],
-			synchronize: true,
+			synchronize: false,
+			migrations: ["src/migrations/*.ts"],
+			migrationsRun: true,
 		};
 	}
 }

@@ -20,18 +20,23 @@ services:
             timeout: 5s
             retries: 5
 
-    postgres:
+    postgres-auth-master:
         image: postgres:16
-        container_name: postgres
+        container_name: postgres-auth-master
         ports:
-            - "5434:5432"
+            - "5433:5432"
         environment:
             - POSTGRES_USER=${DB_USERNAME}
             - POSTGRES_PASSWORD=${DB_PASSWORD}
-            - POSTGRES_DB=${DB_NAME}
+            - POSTGRES_DB=postgres
+            - REPLICATOR_PASSWORD=replicator123
         volumes:
-            - postgres_data:/var/lib/postgresql/data
-            - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+            - postgres_auth_data:/var/lib/postgresql/data
+            - postgres_auth_archive:/var/lib/postgresql/archive
+            - ./postgres-auth-master/postgresql.conf:/etc/postgresql/postgresql.conf
+            - ./postgres-auth-master/pg_hba.conf:/etc/postgresql/pg_hba.conf
+            - ./postgres-auth-master/init-auth-master.sh:/docker-entrypoint-initdb.d/init-auth-master.sh
+        command: postgres -c config_file=/etc/postgresql/postgresql.conf -c hba_file=/etc/postgresql/pg_hba.conf
         networks:
             - microservices_network
         healthcheck:
@@ -40,11 +45,97 @@ services:
             timeout: 5s
             retries: 5
 
+    postgres-shortener-master:
+        image: postgres:16
+        container_name: postgres-shortener-master
+        ports:
+            - "5434:5432"
+        environment:
+            - POSTGRES_USER=${DB_USERNAME}
+            - POSTGRES_PASSWORD=${DB_PASSWORD}
+            - POSTGRES_DB=postgres
+            - REPLICATOR_PASSWORD=replicator123
+        volumes:
+            - postgres_shortener_master_data:/var/lib/postgresql/data
+            - postgres_shortener_archive:/var/lib/postgresql/archive
+            - ./postgres-shortener-master/postgresql.conf:/etc/postgresql/postgresql.conf
+            - ./postgres-shortener-master/pg_hba.conf:/etc/postgresql/pg_hba.conf
+            - ./postgres-shortener-master/init-shortener-master.sh:/docker-entrypoint-initdb.d/init-shortener-master.sh
+        command: postgres -c config_file=/etc/postgresql/postgresql.conf -c hba_file=/etc/postgresql/pg_hba.conf
+        networks:
+            - microservices_network
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+    postgres-shortener-slave1:
+        image: postgres:16
+        container_name: postgres-shortener-slave1
+        ports:
+            - "5435:5432"
+        environment:
+            - POSTGRES_USER=${DB_USERNAME}
+            - POSTGRES_PASSWORD=${DB_PASSWORD}
+            - POSTGRES_DB=postgres
+            - REPLICATOR_PASSWORD=replicator123
+            - PGUSER=${DB_USERNAME}
+        volumes:
+            - postgres_shortener_slave1_data:/var/lib/postgresql/data
+            - ./postgres-shortener-slave/postgresql.conf:/etc/postgresql/postgresql.conf
+            - ./postgres-shortener-slave/pg_hba.conf:/etc/postgresql/pg_hba.conf
+            - ./postgres-shortener-slave/setup-slave.sh:/docker-entrypoint-initdb.d/setup-slave.sh
+        entrypoint: ["/docker-entrypoint-initdb.d/setup-slave.sh"]
+        user: root
+        depends_on:
+            postgres-shortener-master:
+                condition: service_healthy
+        networks:
+            - microservices_network
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres"]
+            interval: 15s
+            timeout: 10s
+            retries: 10
+            start_period: 60s
+
+    postgres-shortener-slave2:
+        image: postgres:16
+        container_name: postgres-shortener-slave2
+        ports:
+            - "5436:5432"
+        environment:
+            - POSTGRES_USER=${DB_USERNAME}
+            - POSTGRES_PASSWORD=${DB_PASSWORD}
+            - POSTGRES_DB=postgres
+            - REPLICATOR_PASSWORD=replicator123
+            - PGUSER=${DB_USERNAME}
+        volumes:
+            - postgres_shortener_slave2_data:/var/lib/postgresql/data
+            - ./postgres-shortener-slave/postgresql.conf:/etc/postgresql/postgresql.conf
+            - ./postgres-shortener-slave/pg_hba.conf:/etc/postgresql/pg_hba.conf
+            - ./postgres-shortener-slave/setup-slave.sh:/docker-entrypoint-initdb.d/setup-slave.sh
+        entrypoint: ["/docker-entrypoint-initdb.d/setup-slave.sh"]
+        user: root
+        depends_on:
+            postgres-shortener-master:
+                condition: service_healthy
+        networks:
+            - microservices_network
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres"]
+            interval: 15s
+            timeout: 10s
+            retries: 10
+            start_period: 60s
+
     pgadmin:
         image: dpage/pgadmin4
         container_name: pgadmin
         depends_on:
-            - postgres
+            - postgres-auth-master
+            - postgres-shortener-master
         ports:
             - "5050:80"
         environment:
@@ -63,15 +154,14 @@ services:
         environment:
             DB_USER: ${DB_USERNAME}
             DB_PASSWORD: ${DB_PASSWORD}
-            DB_HOST: postgres
-            DB_PORT: 5432
-            DB_NAME_AUTH: ${DB_NAME_AUTH}
-            DB_NAME_SHORTENER: ${DB_NAME_SHORTENER}
         volumes:
-            - ./pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini
-            - ./userlist.txt:/etc/pgbouncer/userlist.txt
+            - ./pgbouncer/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini
+            - ./pgbouncer/userlist.txt:/etc/pgbouncer/userlist.txt
         depends_on:
-            - postgres
+            - postgres-auth-master
+            - postgres-shortener-master
+            - postgres-shortener-slave1
+            - postgres-shortener-slave2
         networks:
             - microservices_network
 
@@ -79,7 +169,8 @@ services:
         image: redis:7
         container_name: redis
         ports:
-            - "6379:6379"
+            # - "6379:6379"
+            - "15642:6379"
         networks:
             - microservices_network
 
@@ -91,14 +182,14 @@ services:
         env_file:
             - .env
         depends_on:
-            - postgres
+            - postgres-auth-master
             - rabbitmq
         networks:
             - microservices_network
         restart: unless-stopped
         command: sh -c "
-            until nc -z postgres 5432; do
-            echo 'Waiting for Postgres...';
+            until nc -z postgres-auth-master 5432; do
+            echo 'Waiting for Auth Postgres...';
             sleep 2;
             done;
             until nc -z rabbitmq 5672; do
@@ -116,15 +207,25 @@ services:
         env_file:
             - .env
         depends_on:
-            - postgres
+            - postgres-shortener-master
+            - postgres-shortener-slave1
+            - postgres-shortener-slave2
             - rabbitmq
             - redis
         networks:
             - microservices_network
         restart: unless-stopped
         command: sh -c "
-            until nc -z postgres 5432; do
-            echo 'Waiting for Postgres...';
+            until nc -z postgres-shortener-master 5432; do
+            echo 'Waiting for URL Shortener Master Postgres...';
+            sleep 2;
+            done;
+            until nc -z postgres-shortener-slave1 5432; do
+            echo 'Waiting for URL Shortener Slave1 Postgres...';
+            sleep 2;
+            done;
+            until nc -z postgres-shortener-slave2 5432; do
+            echo 'Waiting for URL Shortener Slave2 Postgres...';
             sleep 2;
             done;
             until nc -z rabbitmq 5672; do
@@ -150,8 +251,12 @@ services:
             - microservices_network
         restart: unless-stopped
         command: sh -c "
-            until nc -z postgres 5432; do
-            echo 'Waiting for Postgres...';
+            until nc -z postgres-auth-master 5432; do
+            echo 'Waiting for Auth Postgres...';
+            sleep 2;
+            done;
+            until nc -z postgres-shortener-master 5432; do
+            echo 'Waiting for URL Shortener Postgres...';
             sleep 2;
             done;
             until nc -z rabbitmq 5672; do
@@ -162,7 +267,12 @@ services:
             "
 
 volumes:
-    postgres_data:
+    postgres_auth_data:
+    postgres_auth_archive:
+    postgres_shortener_master_data:
+    postgres_shortener_slave1_data:
+    postgres_shortener_slave2_data:
+    postgres_shortener_archive:
     rabbitmq_data:
     pgadmin_data:
 
