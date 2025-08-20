@@ -1,6 +1,5 @@
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { RedisService } from "../../../../../../libs/common/src";
-import { UrlEntity } from "../../models/entities/url.entity";
 import { IUrlRepository } from "../../models/interfaces/url-repository.interface";
 
 @Injectable()
@@ -13,7 +12,11 @@ export class GetOriginalUrlUseCase {
 
 	async execute(url: string): Promise<string> {
 		const cached = await this.getFromCache(url);
-		if (cached) return cached.originalUrl;
+		if (cached) {
+			const cachedJson = JSON.parse(cached);
+			this.incrementClickCountAsync(cachedJson.id);
+			return cachedJson.originalUrl;
+		}
 
 		const existingShortUrl = await this.urlRepository.findByShortCode(url);
 		if (!existingShortUrl) {
@@ -28,8 +31,8 @@ export class GetOriginalUrlUseCase {
 		return existingShortUrl.originalUrl;
 	}
 
-	private async getFromCache(url: string): Promise<UrlEntity | null> {
-		return this.cacheService.get<UrlEntity>(`link:${url}`);
+	private async getFromCache(url: string): Promise<string | null> {
+		return this.cacheService.get<string>(`link:${url}`);
 	}
 
 	private calculateTTL(clickCount: number): number {
