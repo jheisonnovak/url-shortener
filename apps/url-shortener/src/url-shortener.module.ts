@@ -1,7 +1,8 @@
+import { MetricsInterceptor, MetricsModule, MetricsService, RedisService } from "@app/common";
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
+import { APP_INTERCEPTOR } from "@nestjs/core";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { RedisService } from "../../../libs/common/src";
 import { DatabaseConfigService } from "./config/database.config.service";
 import { UrlEntity } from "./core/models/entities/url.entity";
 import { UrlTypeOrmRepository } from "./core/repositories/url.repository";
@@ -26,6 +27,7 @@ import { UpdateOriginalUrlUseCase } from "./core/use-cases/update-original-url/u
 			inject: [DatabaseConfigService],
 		}),
 		TypeOrmModule.forFeature([UrlEntity]),
+		MetricsModule,
 	],
 	controllers: [GetOriginalUrlController, ShortenController, FindAllUrlsController, UpdateOriginalUrlController, DeleteController],
 	providers: [
@@ -39,6 +41,11 @@ import { UpdateOriginalUrlUseCase } from "./core/use-cases/update-original-url/u
 		{
 			provide: "IUrlRepository",
 			useExisting: UrlTypeOrmRepository,
+		},
+		{
+			provide: APP_INTERCEPTOR,
+			useFactory: (metricsService: MetricsService): MetricsInterceptor => new MetricsInterceptor(metricsService, "url-shortener"),
+			inject: [MetricsService],
 		},
 	],
 })

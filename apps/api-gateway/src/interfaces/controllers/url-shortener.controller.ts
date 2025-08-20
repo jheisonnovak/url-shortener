@@ -25,7 +25,7 @@ export class UrlShortenerController {
 	@ApiBearerAuth()
 	@ApiResponse({ status: 201, type: ListUrlDto })
 	@ApiResponse({ status: 404, description: "Código encurtado não disponível" })
-	async shortenUrl(@Body() createUrlDto: CreateUrlDto, @Req() req: Request, @CurrentUser() user: JwtPayload) {
+	async shortenUrl(@Body() createUrlDto: CreateUrlDto, @Req() req: Request, @CurrentUser() user: JwtPayload): Promise<CreateUrlDto> {
 		return await firstValueFrom(
 			this.urlShortenerService.send<CreateUrlDto>(
 				{ cmd: "createUrlShortener" },
@@ -40,7 +40,11 @@ export class UrlShortenerController {
 	@ApiOperation({ summary: "Listar URLs encurtadas pelo usuário" })
 	@PaginatedResponse(ListDetailedUrlDto)
 	@ApiResponse({ status: 401, description: "Unauthorized" })
-	async listShortenedUrls(@CurrentUser() user: JwtPayload, @Req() req: Request, @Query() pagination?: PaginationDto) {
+	async listShortenedUrls(
+		@CurrentUser() user: JwtPayload,
+		@Req() req: Request,
+		@Query() pagination?: PaginationDto
+	): Promise<ListDetailedUrlDto[]> {
 		return await firstValueFrom(
 			this.urlShortenerService.send<ListDetailedUrlDto[]>(
 				{ cmd: "listShortenedUrls" },
@@ -56,7 +60,7 @@ export class UrlShortenerController {
 		description: "Utilize em um navegador para acessar a URL original. Ex: http://<host>/abc123",
 	})
 	@ApiResponse({ status: 302 })
-	async getUrlShortener(@Param("shortCode") shortCode: string, @Res() res: Response) {
+	async getUrlShortener(@Param("shortCode") shortCode: string, @Res() res: Response): Promise<void> {
 		try {
 			const redirectUrl = await firstValueFrom(this.urlShortenerService.send({ cmd: "getUrlShortener" }, shortCode));
 			return res.redirect(redirectUrl);
@@ -78,7 +82,7 @@ export class UrlShortenerController {
 		@Body() updateUrlDto: UpdateUrlDto,
 		@CurrentUser() user: JwtPayload,
 		@Req() req: Request
-	) {
+	): Promise<ResponseDto> {
 		return await firstValueFrom(
 			this.urlShortenerService.send<ResponseDto>(
 				{ cmd: "updateShortenedUrl" },
@@ -95,7 +99,7 @@ export class UrlShortenerController {
 	@ApiResponse({ type: ResponseDto })
 	@ApiResponse({ status: 401, description: "Unauthorized" })
 	@ApiResponse({ status: 404, description: "Link encurtado não encontrado." })
-	async deleteShortenedUrl(@Param("shortCode") shortCode: string, @CurrentUser() user: JwtPayload) {
+	async deleteShortenedUrl(@Param("shortCode") shortCode: string, @CurrentUser() user: JwtPayload): Promise<ListUrlDto> {
 		return await firstValueFrom(this.urlShortenerService.send<ListUrlDto>({ cmd: "deleteShortenedUrl" }, { shortCode, userId: user.sub }));
 	}
 }

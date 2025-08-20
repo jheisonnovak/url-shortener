@@ -1,11 +1,12 @@
+import { JwtStrategy, MetricsController, MetricsInterceptor, MetricsModule, MetricsService } from "@app/common";
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
+import { APP_INTERCEPTOR } from "@nestjs/core";
 import { ClientsModule, Transport } from "@nestjs/microservices";
-import { JwtStrategy } from "../../../libs/common/src/jwt.strategy";
 import { AuthLoginController } from "./interfaces/controllers/auth-login.controller";
 import { UrlShortenerController } from "./interfaces/controllers/url-shortener.controller";
 
-const getRmqOptions = (queue: string) => ({
+const getRmqOptions = (queue: string): object => ({
 	urls: [process.env.RABBITMQ_URL || "amqp://localhost:5672"],
 	queue,
 	queueOptions: {
@@ -30,8 +31,16 @@ const getRmqOptions = (queue: string) => ({
 				options: getRmqOptions("url_shortener_queue"),
 			},
 		]),
+		MetricsModule,
 	],
-	controllers: [AuthLoginController, UrlShortenerController],
-	providers: [JwtStrategy],
+	controllers: [MetricsController, AuthLoginController, UrlShortenerController],
+	providers: [
+		JwtStrategy,
+		{
+			provide: APP_INTERCEPTOR,
+			useFactory: (metricsService: MetricsService): MetricsInterceptor => new MetricsInterceptor(metricsService, "api-gateway"),
+			inject: [MetricsService],
+		},
+	],
 })
 export class ApiGatewayModule {}

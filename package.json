@@ -21,7 +21,9 @@
 		"docker:up": "docker-compose up --build -d",
 		"docker:down": "docker-compose down",
 		"docker:logs": "docker-compose logs -f",
-		"docker:restart": "docker-compose restart"
+		"docker:restart": "docker-compose restart",
+		"monitoring:status": "docker-compose ps prometheus grafana node-exporter postgres-exporter-auth postgres-exporter-shortener redis-exporter",
+		"monitoring:logs": "docker-compose logs -f prometheus grafana"
 	},
 	"dependencies": {
 		"@nestjs/common": "^11.0.1",
@@ -41,6 +43,7 @@
 		"ioredis": "^5.7.0",
 		"passport-jwt": "^4.0.1",
 		"pg": "^8.16.0",
+		"prom-client": "^15.1.3",
 		"reflect-metadata": "^0.2.2",
 		"rxjs": "^7.8.1",
 		"typeorm": "^0.3.24"

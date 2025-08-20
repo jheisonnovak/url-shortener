@@ -1,5 +1,7 @@
+import { MetricsInterceptor, MetricsModule, MetricsService } from "@app/common";
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
+import { APP_INTERCEPTOR } from "@nestjs/core";
 import { JwtModule } from "@nestjs/jwt";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { DatabaseConfigService } from "./config/database.config.service";
@@ -21,6 +23,7 @@ import { RegisterUseCase } from "./core/use-cases/register/register.use-case";
 		}),
 		TypeOrmModule.forFeature([UserEntity]),
 		JwtModule.register({ secret: process.env.JWT_SECRET }),
+		MetricsModule,
 	],
 	controllers: [LoginController, RegisterController],
 	providers: [
@@ -30,6 +33,11 @@ import { RegisterUseCase } from "./core/use-cases/register/register.use-case";
 		{
 			provide: "IUserRepository",
 			useClass: UserTypeOrmRepository,
+		},
+		{
+			provide: APP_INTERCEPTOR,
+			useFactory: (metricsService: MetricsService): MetricsInterceptor => new MetricsInterceptor(metricsService, "auth-service"),
+			inject: [MetricsService],
 		},
 	],
 })

@@ -5,6 +5,7 @@ services:
         ports:
             - "5672:5672"
             - "15672:15672"
+            - "15692:15692"
         environment:
             - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
             - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
@@ -17,6 +18,11 @@ services:
             interval: 10s
             timeout: 5s
             retries: 5
+        command: >
+            bash -c "
+                rabbitmq-plugins enable rabbitmq_prometheus;
+                rabbitmq-server
+            "
 
     postgres-auth-master:
         image: postgres:16
@@ -179,6 +185,8 @@ services:
         container_name: auth-service
         env_file:
             - .env
+        ports:
+            - "3001:3001"
         depends_on:
             - postgres-auth-master
             - rabbitmq
@@ -204,6 +212,8 @@ services:
         container_name: url-shortener
         env_file:
             - .env
+        ports:
+            - "3002:3002"
         depends_on:
             - postgres-shortener-master
             - postgres-shortener-slave1
@@ -264,6 +274,101 @@ services:
             node dist/apps/api-gateway/main
             "
 
+    prometheus:
+        image: prom/prometheus:v2.47.0
+        container_name: prometheus
+        ports:
+            - "9090:9090"
+        volumes:
+            - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+            - prometheus_data:/prometheus
+        command:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--storage.tsdb.path=/prometheus"
+            - "--web.console.libraries=/etc/prometheus/console_libraries"
+            - "--web.console.templates=/etc/prometheus/consoles"
+            - "--storage.tsdb.retention.time=200h"
+            - "--web.enable-lifecycle"
+        networks:
+            - microservices_network
+        restart: unless-stopped
+
+    grafana:
+        image: grafana/grafana:10.1.0
+        container_name: grafana
+        ports:
+            - "3000:3000"
+        volumes:
+            - grafana_data:/var/lib/grafana
+            - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+            - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+        environment:
+            - GF_SECURITY_ADMIN_USER=admin
+            - GF_SECURITY_ADMIN_PASSWORD=admin
+            - GF_USERS_ALLOW_SIGN_UP=false
+        networks:
+            - microservices_network
+        restart: unless-stopped
+        depends_on:
+            - prometheus
+
+    postgres-exporter-auth:
+        image: prometheuscommunity/postgres-exporter:v0.13.2
+        container_name: postgres-exporter-auth
+        ports:
+            - "9187:9187"
+        environment:
+            DATA_SOURCE_NAME: "postgresql://${DB_USERNAME}:${DB_PASSWORD}@postgres-auth-master:5432/auth_service?sslmode=disable"
+        depends_on:
+            - postgres-auth-master
+        networks:
+            - microservices_network
+        restart: unless-stopped
+
+    postgres-exporter-shortener:
+        image: prometheuscommunity/postgres-exporter:v0.13.2
+        container_name: postgres-exporter-shortener
+        ports:
+            - "9188:9188"
+        environment:
+            DATA_SOURCE_NAME: "postgresql://${DB_USERNAME}:${DB_PASSWORD}@postgres-shortener-master:5432/url_shortener?sslmode=disable"
+        command: ["--web.listen-address=:9188"]
+        depends_on:
+            - postgres-shortener-master
+        networks:
+            - microservices_network
+        restart: unless-stopped
+
+    redis-exporter:
+        image: oliver006/redis_exporter:v1.45.0
+        container_name: redis-exporter
+        ports:
+            - "9121:9121"
+        environment:
+            REDIS_ADDR: "redis://redis:6379"
+        depends_on:
+            - redis
+        networks:
+            - microservices_network
+        restart: unless-stopped
+
+    node-exporter:
+        image: prom/node-exporter:v1.6.1
+        container_name: node-exporter
+        ports:
+            - "9100:9100"
+        volumes:
+            - /proc:/host/proc:ro
+            - /sys:/host/sys:ro
+            - /:/rootfs:ro
+        command:
+            - "--path.procfs=/host/proc"
+            - "--path.sysfs=/host/sys"
+            - "--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)"
+        networks:
+            - microservices_network
+        restart: unless-stopped
+
 volumes:
     postgres_auth_data:
     postgres_auth_archive:
@@ -273,6 +378,8 @@ volumes:
     postgres_shortener_archive:
     rabbitmq_data:
     pgadmin_data:
+    prometheus_data:
+    grafana_data:
 
 networks:
     microservices_network:
