@@ -10,11 +10,11 @@ export class DatabaseConfigService implements TypeOrmOptionsFactory {
 	createTypeOrmOptions(): TypeOrmModuleOptions {
 		return {
 			type: "postgres",
-			host: this.configService.get<string>("DB_AUTH_HOST") || "postgres-auth-master",
-			port: this.configService.get<number>("DB_AUTH_PORT") || 5432,
+			host: this.configService.get<string>("DB_AUTH_HOST"),
+			port: this.configService.get<number>("DB_AUTH_PORT"),
 			username: this.configService.get<string>("DB_USERNAME"),
 			password: this.configService.get<string>("DB_PASSWORD"),
-			database: this.configService.get<string>("DB_NAME_AUTH") || "auth_service",
+			database: this.configService.get<string>("DB_NAME_AUTH"),
 			entities: [UserEntity],
 			synchronize: true,
 		};

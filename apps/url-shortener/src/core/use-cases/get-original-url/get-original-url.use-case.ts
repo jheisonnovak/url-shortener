@@ -12,24 +12,39 @@ export class GetOriginalUrlUseCase {
 	) {}
 
 	async execute(url: string): Promise<string> {
-		const existingShortUrl = await this.getLink(url);
-		this.addClickCount(existingShortUrl);
+		const cached = await this.getFromCache(url);
+		if (cached) return cached.originalUrl;
+
+		const existingShortUrl = await this.urlRepository.findByShortCode(url);
+		if (!existingShortUrl) {
+			await this.cacheService.set(`link:${url}`, null, 60);
+			throw new NotFoundException("URL not found");
+		}
+		this.incrementClickCountAsync(existingShortUrl.id);
+
+		const ttl = this.calculateTTL(existingShortUrl.clickCount);
+		await this.cacheService.set(`link:${url}`, JSON.stringify(existingShortUrl), ttl);
+
 		return existingShortUrl.originalUrl;
 	}
 
-	async addClickCount(url: UrlEntity): Promise<void> {
-		await this.urlRepository.updateClickCount(url.id);
+	private async getFromCache(url: string): Promise<UrlEntity | null> {
+		return this.cacheService.get<UrlEntity>(`link:${url}`);
 	}
 
-	async getLink(url: string): Promise<UrlEntity> {
-		const cacheKey = `link:${url}`;
-		const cached = await this.cacheService.get<UrlEntity>(cacheKey);
-		if (cached) return cached;
+	private calculateTTL(clickCount: number): number {
+		if (clickCount > 1000) return 3600;
+		if (clickCount > 100) return 1800;
+		return 300;
+	}
 
-		const existingShortUrl = await this.urlRepository.findByShortCode(url);
-		if (!existingShortUrl) throw new NotFoundException("URL não encontrada");
-
-		await this.cacheService.set(cacheKey, existingShortUrl, 300);
-		return existingShortUrl;
+	private async incrementClickCountAsync(id: string): Promise<void> {
+		setImmediate(async () => {
+			try {
+				await this.urlRepository.updateClickCount(id);
+			} catch (error) {
+				console.error("Failed to increment click count:", error);
+			}
+		});
 	}
 }

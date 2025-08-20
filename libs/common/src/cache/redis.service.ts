@@ -5,13 +5,13 @@ import Redis from "ioredis";
 export class RedisService implements OnModuleInit, OnModuleDestroy {
 	private client: Redis;
 
-	onModuleInit() {
+	onModuleInit(): void {
 		const port = Number(process.env.REDIS_PORT ?? "6379");
 		const host = process.env.REDIS_HOST ?? "localhost";
 		this.client = new Redis(port, host);
 	}
 
-	onModuleDestroy() {
+	onModuleDestroy(): Promise<"OK"> {
 		return this.client.quit();
 	}
 
