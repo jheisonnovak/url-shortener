@@ -46,7 +46,7 @@ export class ShortenUseCase {
 	}
 
 	private async validateShortCodeExists(code: string): Promise<string> {
-		if (await this.urlRepository.existsByShortCode(code)) throw new NotFoundException("Código encurtado não disponível");
+		if (await this.urlRepository.existsByShortCode(code)) throw new NotFoundException("Shortened code not available");
 		return code;
 	}
 }

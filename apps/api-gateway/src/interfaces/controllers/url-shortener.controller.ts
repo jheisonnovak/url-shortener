@@ -11,20 +11,21 @@ import { CreateUrlDto } from "../dtos/create-url.dto";
 import { PaginationDto } from "../dtos/pagination.dto";
 import { UpdateUrlDto } from "../dtos/update-url.dto";
 
-@ApiTags("Encurtador de URLs")
+@ApiTags("URL Shortener")
 @Controller()
 export class UrlShortenerController {
 	constructor(@Inject("URL_SHORTENER_SERVICE") private urlShortenerService: ClientProxy) {}
 
 	@Post("shortener")
 	@ApiOperation({
-		summary: "Encurtar URL (sem e com autenticação)",
-		description: "Cria um código encurtado para a URL fornecida. Caso seja criado como usuário autenticado, o código será associado à sua conta.",
+		summary: "Shorten URL (with and without authentication)",
+		description:
+			"Creates a shortened code for the provided URL. If created as an authenticated user, the code will be associated with your account.",
 	})
 	@UseGuards(OptionalAuthGuard)
 	@ApiBearerAuth()
 	@ApiResponse({ status: 201, type: ListUrlDto })
-	@ApiResponse({ status: 404, description: "Código encurtado não disponível" })
+	@ApiResponse({ status: 404, description: "Shortened code not available" })
 	async shortenUrl(@Body() createUrlDto: CreateUrlDto, @Req() req: Request, @CurrentUser() user: JwtPayload): Promise<CreateUrlDto> {
 		return await firstValueFrom(
 			this.urlShortenerService.send<CreateUrlDto>(
@@ -37,7 +38,7 @@ export class UrlShortenerController {
 	@Get("shortener")
 	@UseGuards(JwtAuthGuard)
 	@ApiBearerAuth()
-	@ApiOperation({ summary: "Listar URLs encurtadas pelo usuário" })
+	@ApiOperation({ summary: "List URLs shortened by the user" })
 	@PaginatedResponse(ListDetailedUrlDto)
 	@ApiResponse({ status: 401, description: "Unauthorized" })
 	async listShortenedUrls(
@@ -54,10 +55,10 @@ export class UrlShortenerController {
 	}
 
 	@Get(":shortCode")
-	@ApiParam({ name: "shortCode", description: "Código da URL encurtada", example: "abc123" })
+	@ApiParam({ name: "shortCode", description: "Shortened URL code", example: "abc123" })
 	@ApiOperation({
-		summary: "Redirecionar para URL original",
-		description: "Utilize em um navegador para acessar a URL original. Ex: http://<host>/abc123",
+		summary: "Redirect to original URL",
+		description: "Use in a browser to access the original URL. Ex: http://<host>/abc123",
 	})
 	@ApiResponse({ status: 302 })
 	async getUrlShortener(@Param("shortCode") shortCode: string, @Res() res: Response): Promise<void> {
@@ -70,13 +71,13 @@ export class UrlShortenerController {
 	}
 
 	@Patch("shortener/:shortCode")
-	@ApiParam({ name: "shortCode", description: "Código da URL encurtada", example: "abc123" })
+	@ApiParam({ name: "shortCode", description: "Shortened URL code", example: "abc123" })
 	@UseGuards(JwtAuthGuard)
 	@ApiBearerAuth()
-	@ApiOperation({ summary: "Atualizar URL de origem" })
+	@ApiOperation({ summary: "Update original URL" })
 	@ApiResponse({ type: OmitType(ListUrlDto, ["userId"]) })
 	@ApiResponse({ status: 401, description: "Unauthorized" })
-	@ApiResponse({ status: 404, description: "Link encurtado não encontrado." })
+	@ApiResponse({ status: 404, description: "Shortened link not found." })
 	async updateShortenedUrl(
 		@Param("shortCode") shortCode: string,
 		@Body() updateUrlDto: UpdateUrlDto,
@@ -92,13 +93,13 @@ export class UrlShortenerController {
 	}
 
 	@Delete("shortener/:shortCode")
-	@ApiParam({ name: "shortCode", description: "Código da URL encurtada", example: "abc123" })
+	@ApiParam({ name: "shortCode", description: "Shortened URL code", example: "abc123" })
 	@UseGuards(JwtAuthGuard)
 	@ApiBearerAuth()
-	@ApiOperation({ summary: "Excluir URL encurtada" })
+	@ApiOperation({ summary: "Delete shortened URL" })
 	@ApiResponse({ type: ResponseDto })
 	@ApiResponse({ status: 401, description: "Unauthorized" })
-	@ApiResponse({ status: 404, description: "Link encurtado não encontrado." })
+	@ApiResponse({ status: 404, description: "Shortened link not found." })
 	async deleteShortenedUrl(@Param("shortCode") shortCode: string, @CurrentUser() user: JwtPayload): Promise<ListUrlDto> {
 		return await firstValueFrom(this.urlShortenerService.send<ListUrlDto>({ cmd: "deleteShortenedUrl" }, { shortCode, userId: user.sub }));
 	}

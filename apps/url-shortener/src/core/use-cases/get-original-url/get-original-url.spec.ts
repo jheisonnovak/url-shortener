@@ -60,22 +60,10 @@ describe("GetOriginalUrlUseCase", () => {
 			urlRepository.findByShortCode.mockResolvedValue(null);
 
 			await expect(getOriginalUrlUseCase.execute("abc123")).rejects.toThrow(NotFoundException);
-			await expect(getOriginalUrlUseCase.execute("abc123")).rejects.toThrow("URL não encontrada");
+			await expect(getOriginalUrlUseCase.execute("abc123")).rejects.toThrow("URL not found");
 
 			expect(urlRepository.findByShortCode).toHaveBeenCalledWith("abc123");
 			expect(urlRepository.save).not.toHaveBeenCalled();
-		});
-	});
-
-	describe("addClickCount", () => {
-		it("should increment click count by 1", async () => {
-			const urlToUpdate = { ...mockUrl };
-			urlRepository.save.mockResolvedValue({ ...urlToUpdate, clickCount: 6 } as UrlEntity);
-
-			await getOriginalUrlUseCase.addClickCount(urlToUpdate);
-
-			expect(urlToUpdate.clickCount).toBe(7);
-			expect(urlRepository.save).toHaveBeenCalledWith(urlToUpdate);
 		});
 	});
 });

@@ -11,9 +11,9 @@ export class DeleteUseCase {
 
 	async execute(shortCode: string, userId: string): Promise<ResponseDto> {
 		const url = await this.urlRepository.findByShortCodeAndUserId(shortCode, userId);
-		if (!url) throw new NotFoundException("Link encurtado não encontrado.");
+		if (!url) throw new NotFoundException("Shortened link not found.");
 
 		await this.urlRepository.delete(url.id);
-		return new ResponseDto("Link encurtado excluído com sucesso.");
+		return new ResponseDto("Shortened link deleted successfully.");
 	}
 }

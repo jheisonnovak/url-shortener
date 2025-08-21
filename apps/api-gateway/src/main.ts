@@ -9,7 +9,7 @@ async function bootstrap(): Promise<void> {
 
 	const config = new DocumentBuilder()
 		.setTitle("URL Shortener API Gateway")
-		.setDescription("Documentação da API Gateway do encurtador de URLs")
+		.setDescription("URL Shortener API Gateway Documentation")
 		.setVersion(process.env.npm_package_version ?? "0.0.0")
 		.addBearerAuth()
 		.build();

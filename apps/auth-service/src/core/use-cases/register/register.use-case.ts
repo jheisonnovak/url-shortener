@@ -25,7 +25,7 @@ export class RegisterUseCase {
 			return new ListUserDto(userEntity.id, userEntity.username, userEntity.email);
 		} catch {
 			this.metricsService.recordAuthentication("register", "failure");
-			throw new BadRequestException("Username ou email já estão em uso");
+			throw new BadRequestException("Username or email already in use");
 		}
 	}
 }

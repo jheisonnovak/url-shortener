@@ -12,7 +12,7 @@ export class UpdateOriginalUrlUseCase {
 
 	async execute(shortCode: string, userId: string, updateUrl: string, protocol: string, host: string): Promise<ListUrlDto> {
 		const url = await this.urlRepository.findByShortCodeAndUserId(shortCode, userId);
-		if (!url) throw new NotFoundException("Link encurtado não encontrado.");
+		if (!url) throw new NotFoundException("Shortened link not found.");
 
 		url.originalUrl = updateUrl;
 		const newUrl = await this.urlRepository.save(url);
