@@ -19,7 +19,7 @@ export class MetricsService {
 			name: "http_request_duration_seconds",
 			help: "Duration of HTTP requests in seconds",
 			labelNames: ["method", "route", "status_code", "service"],
-			buckets: [0.1, 0.3, 0.5, 0.7, 1, 3, 5, 7, 10],
+			buckets: [0.001, 0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5, 1, 2.5, 5, 10],
 		});
 
 		this.httpRequestsTotal = new Counter({

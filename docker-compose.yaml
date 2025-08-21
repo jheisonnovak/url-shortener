@@ -28,7 +28,7 @@ services:
         image: postgres:16
         container_name: postgres-auth-master
         ports:
-            - "5433:5432"
+            - "5440:5432"
         environment:
             - POSTGRES_USER=${DB_USERNAME}
             - POSTGRES_PASSWORD=${DB_PASSWORD}
