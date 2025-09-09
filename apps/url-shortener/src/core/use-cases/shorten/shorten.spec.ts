@@ -100,7 +100,7 @@ describe("ShortenUseCase", () => {
 				NotFoundException
 			);
 			await expect(shortenUseCase.execute(mockCreateUrlDtoWithCustomCode, "user-123", "http", "localhost:3000")).rejects.toThrow(
-				"Código encurtado não disponível"
+				"Shortened code not available"
 			);
 
 			expect(urlRepository.existsByShortCode).toHaveBeenCalledWith("custom");

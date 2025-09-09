@@ -1,3 +1,4 @@
+export * from "./cache/redis.service";
 export * from "./current-user.decorator";
 export * from "./dtos/list-detailed-url.dto";
 export * from "./dtos/list-url.dto";
@@ -11,3 +12,7 @@ export * from "./guards/jwt-auth.guard";
 export * from "./guards/optional-auth.guard";
 export * from "./interfaces/jwt-payload.interface";
 export * from "./jwt.strategy";
+export * from "./metrics/metrics.controller";
+export * from "./metrics/metrics.interceptor";
+export * from "./metrics/metrics.module";
+export * from "./metrics/metrics.service";

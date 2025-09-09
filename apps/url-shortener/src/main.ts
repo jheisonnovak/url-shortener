@@ -1,13 +1,15 @@
+import { AllExceptionsFilter } from "@app/common";
 import { NestFactory } from "@nestjs/core";
 import { Transport } from "@nestjs/microservices";
-import { AllExceptionsFilter } from "../../../libs/common/src";
 import { UrlShortenerModule } from "./url-shortener.module";
 
-async function bootstrap() {
-	const app = await NestFactory.createMicroservice(UrlShortenerModule, {
+async function bootstrap(): Promise<void> {
+	const app = await NestFactory.create(UrlShortenerModule);
+
+	app.connectMicroservice({
 		transport: Transport.RMQ,
 		options: {
-			urls: [process.env.RABBITMQ_URL || "amqp://localhost:5672"],
+			urls: [process.env.RABBITMQ_URL],
 			queue: "url_shortener_queue",
 			queueOptions: {
 				durable: false,
@@ -16,6 +18,8 @@ async function bootstrap() {
 	});
 
 	app.useGlobalFilters(new AllExceptionsFilter());
-	await app.listen();
+
+	await app.startAllMicroservices();
+	await app.listen(3002);
 }
 bootstrap();

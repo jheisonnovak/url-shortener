@@ -41,6 +41,10 @@ export class UrlTypeOrmRepository implements IUrlRepository {
 		return this.urlRepository.save(url);
 	}
 
+	async updateClickCount(id: string): Promise<void> {
+		await this.urlRepository.increment({ id }, "clickCount", 1);
+	}
+
 	async delete(id: string): Promise<void> {
 		await this.urlRepository.delete(id);
 	}

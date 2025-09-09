@@ -75,7 +75,7 @@ describe("UpdateOriginalUrlUseCase", () => {
 				NotFoundException
 			);
 			await expect(updateOriginalUrlUseCase.execute("abc123", "user-123", "https://new-example.com", "https", "example.com")).rejects.toThrow(
-				"Link encurtado não encontrado."
+				"Shortened link not found."
 			);
 
 			expect(urlRepository.findByShortCodeAndUserId).toHaveBeenCalledWith("abc123", "user-123");

@@ -54,14 +54,14 @@ describe("DeleteUseCase", () => {
 			expect(urlRepository.findByShortCodeAndUserId).toHaveBeenCalledWith("abc123", "user-123");
 			expect(urlRepository.delete).toHaveBeenCalledWith(mockUrl.id);
 			expect(result).toBeInstanceOf(ResponseDto);
-			expect(result.message).toBe("Link encurtado excluído com sucesso.");
+			expect(result.message).toBe("Shortened link deleted successfully.");
 		});
 
 		it("should throw NotFoundException when URL is not found", async () => {
 			urlRepository.findByShortCodeAndUserId.mockResolvedValue(null);
 
 			await expect(deleteUseCase.execute("abc123", "user-123")).rejects.toThrow(NotFoundException);
-			await expect(deleteUseCase.execute("abc123", "user-123")).rejects.toThrow("Link encurtado não encontrado.");
+			await expect(deleteUseCase.execute("abc123", "user-123")).rejects.toThrow("Shortened link not found.");
 
 			expect(urlRepository.findByShortCodeAndUserId).toHaveBeenCalledWith("abc123", "user-123");
 			expect(urlRepository.delete).not.toHaveBeenCalled();

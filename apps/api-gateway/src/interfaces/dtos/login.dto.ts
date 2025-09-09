@@ -3,11 +3,11 @@ import { IsEmail, IsNotEmpty } from "class-validator";
 
 export class LoginDto {
 	@ApiProperty()
-	@IsEmail({}, { message: "Email inválido" })
-	@IsNotEmpty({ message: "O email não pode estar vazio" })
+	@IsEmail({}, { message: "Invalid email" })
+	@IsNotEmpty({ message: "Email cannot be empty" })
 	email: string;
 
 	@ApiProperty()
-	@IsNotEmpty({ message: "A senha não pode estar vazia" })
+	@IsNotEmpty({ message: "Password cannot be empty" })
 	password: string;
 }

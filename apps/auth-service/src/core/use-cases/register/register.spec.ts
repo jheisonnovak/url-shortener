@@ -82,7 +82,7 @@ describe("RegisterUseCase", () => {
 			userRepository.save.mockRejectedValue(new Error());
 
 			await expect(registerUseCase.execute(mockRegisterDto)).rejects.toThrow(BadRequestException);
-			await expect(registerUseCase.execute(mockRegisterDto)).rejects.toThrow("Username ou email já estão em uso");
+			await expect(registerUseCase.execute(mockRegisterDto)).rejects.toThrow("Username or email already in use");
 
 			expect(hashSyncMock).toHaveBeenCalledWith(mockRegisterDto.password, 10);
 			expect(userRepository.save).toHaveBeenCalled();

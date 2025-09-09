@@ -1,6 +1,6 @@
+import { ListUserDto, MetricsService } from "@app/common";
 import { BadRequestException, Inject, Injectable } from "@nestjs/common";
 import { hashSync } from "bcrypt";
-import { ListUserDto } from "../../../../../../libs/common/src/dtos/list-user.dto";
 import { RegisterDto } from "../../models/dtos/register.dto";
 import { UserEntity } from "../../models/entities/user.entity";
 import { IUserRepository } from "../../models/interfaces/user-repository.interface";
@@ -9,7 +9,8 @@ import { IUserRepository } from "../../models/interfaces/user-repository.interfa
 export class RegisterUseCase {
 	constructor(
 		@Inject("IUserRepository")
-		private readonly userRepository: IUserRepository
+		private readonly userRepository: IUserRepository,
+		private readonly metricsService: MetricsService
 	) {}
 
 	async execute(userDto: RegisterDto): Promise<ListUserDto> {
@@ -20,9 +21,11 @@ export class RegisterUseCase {
 
 		try {
 			const userEntity = await this.userRepository.save(user);
+			this.metricsService.recordAuthentication("register", "success");
 			return new ListUserDto(userEntity.id, userEntity.username, userEntity.email);
 		} catch {
-			throw new BadRequestException("Username ou email já estão em uso");
+			this.metricsService.recordAuthentication("register", "failure");
+			throw new BadRequestException("Username or email already in use");
 		}
 	}
 }

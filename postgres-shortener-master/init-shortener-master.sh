@@ -1,0 +1,10 @@
+#!/bin/bash
+
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
+    CREATE USER replicator REPLICATION LOGIN ENCRYPTED PASSWORD '$REPLICATOR_PASSWORD';
+    CREATE DATABASE url_shortener;
+    GRANT ALL PRIVILEGES ON DATABASE url_shortener TO $POSTGRES_USER;
+EOSQL
+
+mkdir -p /var/lib/postgresql/archive
+chown postgres:postgres /var/lib/postgresql/archive

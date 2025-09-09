@@ -1,5 +1,5 @@
+import { ListUrlDto, MetricsService } from "@app/common";
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { ListUrlDto } from "../../../../../../libs/common/src/dtos/list-url.dto";
 import { CreateUrlDto } from "../../models/dtos/create-url.dto";
 import { UrlEntity } from "../../models/entities/url.entity";
 import { IUrlRepository } from "../../models/interfaces/url-repository.interface";
@@ -8,7 +8,8 @@ import { IUrlRepository } from "../../models/interfaces/url-repository.interface
 export class ShortenUseCase {
 	constructor(
 		@Inject("IUrlRepository")
-		private readonly urlRepository: IUrlRepository
+		private readonly urlRepository: IUrlRepository,
+		private readonly metricsService: MetricsService
 	) {}
 	private readonly characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 	private readonly codeLength = 6;
@@ -20,7 +21,10 @@ export class ShortenUseCase {
 		url.userId = userId;
 
 		const createdUrl = await this.urlRepository.save(url);
-		const shortUrl = `${protocol}://${host}/${createdUrl.shortCode}`;
+
+		this.metricsService.recordUrlCreation(userId);
+
+		const shortUrl = `${protocol}://${host}${createdUrl.shortCode}`;
 		return new ListUrlDto(createdUrl.id, createdUrl.originalUrl, shortUrl, userId);
 	}
 
@@ -42,7 +46,7 @@ export class ShortenUseCase {
 	}
 
 	private async validateShortCodeExists(code: string): Promise<string> {
-		if (await this.urlRepository.existsByShortCode(code)) throw new NotFoundException("Código encurtado não disponível");
+		if (await this.urlRepository.existsByShortCode(code)) throw new NotFoundException("Shortened code not available");
 		return code;
 	}
 }
