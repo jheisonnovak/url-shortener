@@ -479,237 +479,117 @@ Load Balancer (HAProxy/NGINX)
 
 ## 🔮 Future Enhancements & Roadmap
 
-### 🚀 Phase 1: Production Readiness (Next 2-4 weeks)
+### 🚀 Phase 1: Production Hardening
 
-#### **Rate Limiting & Security**
+#### **Essential Security & Reliability**
 
 ```typescript
-// Implementation Preview
+// Rate Limiting Implementation
 @Injectable()
-export class DistributedRateLimitGuard {
-	// Redis-backed sliding window rate limiting
-	// 1000 requests per minute per IP
-	// Exponential backoff for repeated violations
+export class RateLimitGuard {
+	// Redis-backed sliding window: 100 requests per minute per IP
+	// Configurable limits per endpoint
 }
-```
 
-#### **Circuit Breaker Pattern**
-
-```typescript
-// Fault tolerance for external dependencies
+// Circuit Breaker for Database Connections
 @Injectable()
 export class CircuitBreakerService {
-	// Fail-fast when downstream services are unhealthy
-	// Auto-recovery with half-open state testing
+	// Fail-fast when database is unhealthy
+	// Auto-recovery with exponential backoff
 }
 ```
 
 #### **Enhanced Monitoring**
 
-- **Distributed Tracing**: OpenTelemetry integration
-- **Error Tracking**: Sentry for production error monitoring
-- **Performance APM**: New Relic/DataDog equivalent
+- **Health Checks**: Deep application health endpoints
+- **Error Tracking**: Structured logging and alerting
+- **Performance Metrics**: Database query optimization insights
 
-### 🏗️ Phase 2: Horizontal Scaling (1-2 months)
+### 🏗️ Phase 2: Kubernetes Migration
 
-#### **Kubernetes Deployment**
+#### **Container Orchestration**
 
 ```yaml
-# k8s/url-shortener-deployment.yaml
+# Basic Kubernetes deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
     name: url-shortener
 spec:
-    replicas: 3
+    replicas: 2
     strategy:
         type: RollingUpdate
-        rollingUpdate:
-            maxSurge: 1
-            maxUnavailable: 0
 ```
 
-#### **Auto-scaling Configuration**
+#### **Auto-scaling & Load Balancing**
 
-- **HPA**: CPU/Memory based scaling (2-10 replicas)
-- **VPA**: Vertical resource optimization
-- **Cluster Autoscaler**: Node-level scaling
+- **Horizontal Pod Autoscaler**: CPU-based scaling (2-5 replicas)
+- **Load Balancer**: NGINX Ingress for traffic distribution
+- **ConfigMaps & Secrets**: Proper configuration management
 
-#### **Service Mesh (Istio)**
+### 🌍 Phase 3: Scale & Reliability
 
-- **Traffic Management**: Canary deployments
-- **Security**: mTLS between services
-- **Observability**: Service-to-service metrics
+#### **Content Delivery & Caching**
 
-### 🌍 Phase 3: Global Distribution (2-3 months)
+- **CDN Integration**: CloudFront for static assets and edge caching
+- **Multi-tier Caching**: L1 (application) + L2 (Redis) + L3 (CDN)
+- **Database Read Replicas**: Cross-availability-zone for disaster recovery
 
-#### **Multi-Region Architecture**
+#### **Geographic Distribution (Simplified)**
 
 ```
-US-East-1 (Primary)     EU-West-1 (Secondary)    Asia-Pacific (Read-Only)
-     ↓                        ↓                         ↓
-┌─────────────┐         ┌─────────────┐         ┌─────────────┐
-│Master Region│◄────────┤Standby      │◄────────┤Read Replica │
-│Full R/W     │         │Async Repl.  │         │Local Cache  │
-└─────────────┘         └─────────────┘         └─────────────┘
+Primary Region          Secondary Region
+     ↓                       ↓
+┌─────────────┐         ┌─────────────┐
+│Main Cluster │────────▶│Read Replica │
+│Full R/W     │         │Cache + Backup│
+└─────────────┘         └─────────────┘
 ```
 
-#### **Geographic Load Balancing**
+### 📊 Phase 4: Business Features
 
-- **DNS-based routing**: Route53 geolocation
-- **CDN Integration**: CloudFront/CloudFlare for static assets
-- **Edge Computing**: Lambda@Edge for URL redirects
+#### **User-Facing Features**
 
-### 🧠 Phase 4: Advanced Features (3-6 months)
+- **Analytics Dashboard**: Click tracking, geographic insights, referrer analysis
+- **Custom Short Codes**: User-defined memorable URLs
+- **Bulk Operations**: CSV import/export for enterprise clients
+- **API Rate Plans**: Free, premium, and enterprise tiers
 
-#### **AI-Powered Analytics**
+#### **Advanced URL Management**
 
-- **Click Prediction**: ML models for traffic forecasting
-- **Fraud Detection**: Suspicious activity identification
-- **Smart Caching**: AI-driven TTL optimization
-
-#### **Advanced URL Features**
-
-- **Custom Domains**: user.ly/shortcode
-- **QR Code Generation**: Automatic visual codes
 - **Expiration Policies**: Time-based URL invalidation
-- **A/B Testing**: Feature flag management
+- **QR Code Generation**: Automatic visual codes for sharing
+- **Click Fraud Detection**: Basic suspicious activity identification
 
-### 🔬 Phase 5: Research & Innovation (6+ months)
+### **Realistic Performance Projections**
 
-#### **Experimental Technologies**
+| Phase       | Throughput    | Latency (p95) | Availability | Key Features               |
+| ----------- | ------------- | ------------- | ------------ | -------------------------- |
+| **Current** | 1K req/hour   | ~50ms         | 99.5%        | Basic CRUD operations      |
+| **Phase 1** | 5K req/hour   | ~40ms         | 99.8%        | Rate limiting + monitoring |
+| **Phase 2** | 25K req/hour  | ~35ms         | 99.9%        | Kubernetes + autoscaling   |
+| **Phase 3** | 100K req/hour | ~25ms         | 99.95%       | CDN + geographic caching   |
+| **Phase 4** | 250K req/hour | ~20ms         | 99.95%       | Full feature set           |
 
-- **Edge Computing**: Cloudflare Workers for sub-10ms latency
-- **Serverless Architecture**: Event-driven with Lambda/Cloud Functions
-- **Graph Databases**: Neo4j for complex analytics relationships
-- **Blockchain Integration**: Decentralized URL verification
+### 🛠️ **Technical Improvements**
 
-#### **Advanced Algorithms**
+#### **Code Quality & Testing**
 
-- **Consistent Hashing**: For massive sharding
-- **Bloom Filters**: Memory-efficient duplicate detection
-- **HyperLogLog**: Approximate distinct click counting
+- **Test Coverage**: Increase from current 70% to 90%
+- **Integration Testing**: End-to-end API testing suite
+- **Performance Testing**: Automated load testing in CI/CD pipeline
 
-### 📊 **Success Metrics by Phase**
+#### **Architecture Refinements**
 
-| Phase       | Throughput    | Latency   | Availability | Features              |
-| ----------- | ------------- | --------- | ------------ | --------------------- |
-| **Current** | 10K req/hour  | ~50ms p95 | 99.5%        | Basic CRUD            |
-| **Phase 1** | 100K req/hour | ~30ms p95 | 99.9%        | Security + Monitoring |
-| **Phase 2** | 1M req/hour   | ~20ms p95 | 99.95%       | Auto-scaling          |
-| **Phase 3** | 10M req/hour  | ~15ms p95 | 99.99%       | Global distribution   |
-| **Phase 4** | 50M req/hour  | ~10ms p95 | 99.99%       | AI features           |
+- **Event-Driven Architecture**: RabbitMQ for all async operations
+- **API Versioning**: Proper API evolution strategy
+- **Documentation**: Comprehensive API docs and deployment guides
 
-### 🛠️ **Technical Debt & Refactoring**
+#### **Operational Excellence**
 
-#### **Code Quality Improvements**
-
-- **Test Coverage**: Increase from 70% to 95%
-- **E2E Testing**: Comprehensive integration tests
-- **Performance Testing**: Automated load testing in CI/CD
-
-#### **Architecture Evolution**
-
-- **Event Sourcing**: Complete audit trail of URL operations
-- **CQRS**: Separate read/write models for optimization
-- **Domain-Driven Design**: Refined bounded contexts
-
-## 📈 Performance Metrics & Benchmarks
-
-### **Load Testing Results**
-
-```bash
-# Current performance benchmarks (local environment)
-Artillery Load Test Results:
-┌─────────────────────────────────────────┐
-│ Scenario: Mixed workload (80% reads)    │
-├─────────────────────────────────────────┤
-│ Total requests: 10,000                  │
-│ Requests/sec: 833.2                     │
-│ Response time (p50): 12ms               │
-│ Response time (p95): 45ms               │
-│ Response time (p99): 89ms               │
-│ Error rate: 0.02%                       │
-└─────────────────────────────────────────┘
-```
-
-### **Cache Performance**
-
-| Metric                | Current        | Target | Status |
-| --------------------- | -------------- | ------ | ------ |
-| Cache Hit Rate        | 87%            | >85%   | ✅     |
-| Cache Miss Latency    | 45ms           | <50ms  | ✅     |
-| Cache Memory Usage    | 256MB          | <512MB | ✅     |
-| Redis Connection Pool | 95% efficiency | >90%   | ✅     |
-
-### **Database Performance**
-
-```sql
--- Query performance analysis
-EXPLAIN ANALYZE SELECT * FROM urls WHERE short_code = 'abc123';
-                                                    QUERY PLAN
-──────────────────────────────────────────────────────────────────────────────────────
-Index Scan using urls_short_code_idx on urls  (cost=0.42..8.44 rows=1 width=XXX)
-                                               (actual time=0.015..0.016 rows=1 loops=1)
-Index Cond: (short_code = 'abc123'::text)
-Planning Time: 0.042 ms
-Execution Time: 0.031 ms
-```
-
-### **Production Monitoring Stack**
-
-The system includes comprehensive monitoring through:
-
-- **Application Metrics**: Request rates, response times, error rates
-- **Infrastructure Metrics**: CPU, memory, disk usage
-- **Database Metrics**: Query performance, connection pools, replication lag
-- **Business Metrics**: URL creation rates, click-through rates, user activity
-
-### **Grafana Dashboards Available**
-
-1. **Application Overview**: High-level service health
-2. **Database Performance**: Query optimization insights
-3. **Cache Analysis**: Redis performance and hit rates
-4. **Infrastructure Monitoring**: System resource utilization
-5. **Business Intelligence**: User behavior and URL analytics
-
-## 🤝 Contributing
-
-### Development Setup
-
-```bash
-# Install dependencies
-npm install
-
-# Start development environment
-npm run dev
-
-# Run tests
-npm run test
-
-# Run e2e tests
-npm run test:e2e
-
-# Code quality checks
-npm run lint
-npm run format
-```
-
-### Contribution Guidelines
-
-1. **Fork the repository**
-2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
-3. **Follow the coding standards**: ESLint + Prettier configured
-4. **Write tests**: Maintain >90% code coverage
-5. **Update documentation**: Keep README and API docs current
-6. **Submit a pull request**: Include detailed description
-
-### Code Quality Standards
-
-- **TypeScript**: Strict mode enabled
-- **Testing**: Unit + Integration + E2E tests required
-- **Documentation**: JSDoc comments for public APIs
-- **Commit Messages**: Conventional commit format
+- **Infrastructure as Code**: Terraform for AWS/GCP deployment
+- **CI/CD Pipeline**: Automated testing, building, and deployment
+- **Monitoring & Alerting**: Proactive issue detection and response
 
 ## 📄 License
 
@@ -720,8 +600,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **Jheison Novak** - Senior Software Engineer
 
 - **GitHub**: [@jheisonnovak](https://github.com/jheisonnovak)
-- **LinkedIn**: [Your LinkedIn Profile]
-- **Email**: [Your Email]
+- **LinkedIn**: [[Jheison Novak](https://www.linkedin.com/in/jheison-novak/)]
 
 ### **Technical Expertise Demonstrated**
 
@@ -735,5 +614,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 ⭐ **Star this repository if you found it helpful for learning system design!**
-
-📧 **Questions?** Open an issue or reach out for technical discussions about scalability patterns and architecture decisions.
