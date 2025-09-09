@@ -1,13 +1,12 @@
 import * as http from "http";
 
 const totalRequests = 10000;
-const concurrency = 50; // Reduzido de 100 para 50
-const delay = 50; // Aumentado de 10ms para 50ms
+const concurrency = 200;
+const delay = 50;
 
 let completed = 0;
 let failed = 0;
 
-// Configurar o agente HTTP com limites adequados
 const agent = new http.Agent({
 	keepAlive: true,
 	maxSockets: concurrency,
@@ -47,7 +46,7 @@ function makeRequest(): Promise<void> {
 	});
 }
 
-async function runLoadTest() {
+async function runLoadTest(): Promise<void> {
 	console.log(`🚀 Starting load test: ${totalRequests} requests with concurrency ${concurrency}`);
 	const startTime = Date.now();
 
@@ -63,7 +62,6 @@ async function runLoadTest() {
 
 		await Promise.all(promises);
 
-		// Pausa entre batches para evitar sobrecarga
 		if (batch < batches - 1) {
 			await new Promise(resolve => setTimeout(resolve, delay));
 		}
@@ -80,7 +78,6 @@ async function runLoadTest() {
 	console.log(`   Duration: ${duration}ms`);
 	console.log(`   Requests/second: ${rps.toFixed(2)}`);
 
-	// Fechar o agente
 	agent.destroy();
 }
 
